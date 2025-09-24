@@ -1,12 +1,13 @@
 import { initializeApp } from "firebase/app";
 import { getAuth} from "firebase/auth";
 import { getFirestore} from "firebase/firestore";
+import { FIREBASE_API_KEY, FIREBASE_AUTH_DOMAIN, FIREBASE_PROJECT_ID } from '@env'
 
 // Your Firebase config
 const firebaseConfig = {
-  apiKey: "AIzaSyDtVzBfIBuRMUXjwn_o2TsmyqoX1rrIVYM",
-  authDomain: "friday-bar-app.firebaseapp.com",
-  projectId: "friday-bar-app",
+  apiKey: FIREBASE_API_KEY,
+  authDomain: FIREBASE_AUTH_DOMAIN,
+  projectId: FIREBASE_PROJECT_ID,
   storageBucket: "friday-bar-app.firebasestorage.app",
   messagingSenderId: "243952221636",
   appId: "1:243952221636:web:b6d30be3963395e5207891",

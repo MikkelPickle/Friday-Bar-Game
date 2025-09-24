@@ -1,6 +1,6 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "types": ["jest", "node"]
+    "types": ["jest", "node", "@env"]
   }
 }
