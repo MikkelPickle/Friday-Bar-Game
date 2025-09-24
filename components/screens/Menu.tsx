@@ -1,10 +1,12 @@
 import React, { useEffect, useRef } from "react";
 import { Animated, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "expo-router";
 
 const Menu = ({ open }) => {
-  const slideAnim = useRef(new Animated.Value(-300)).current; // start off-screen left
+  const slideAnim = useRef(new Animated.Value(-300)).current; // start off-screen
   const { t } = useTranslation();
+  const router = useRouter();
 
   useEffect(() => {
     Animated.timing(slideAnim, {
@@ -14,30 +16,29 @@ const Menu = ({ open }) => {
     }).start();
   }, [open]);
 
+  const handleNavigation = (path: string) => {
+    router.push(path);
+  };
+
   return (
-    <Animated.View
-      style={[
-        styles.menu,
-        { transform: [{ translateX: slideAnim }] },
-      ]}
-    >
-      <TouchableOpacity style={styles.link}>
+    <Animated.View style={[styles.menu, { transform: [{ translateX: slideAnim }] }]}>
+      <TouchableOpacity style={styles.link} onPress={() => handleNavigation("/about")}>
         <Text style={styles.linkText}>💁🏻‍♂️ {t("menu.about")}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.link}>
+      <TouchableOpacity style={styles.link} onPress={() => handleNavigation("/map")}>
         <Text style={styles.linkText}>🗺️ {t("menu.map")}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.link}>
+      <TouchableOpacity style={styles.link} onPress={() => handleNavigation("/scoreboard")}>
         <Text style={styles.linkText}>🏆 {t("menu.scoreboard")}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.link}>
+      <TouchableOpacity style={styles.link} onPress={() => handleNavigation("/account")}>
         <Text style={styles.linkText}>👤 {t("menu.account")}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.link}>
+      <TouchableOpacity style={styles.link} onPress={() => handleNavigation("/contact")}>
         <Text style={styles.linkText}>📩 {t("menu.contact")}</Text>
       </TouchableOpacity>
     </Animated.View>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, TouchableOpacity, Text, StyleSheet, Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { i18nInstance, SupportedLanguage } from "../languages/i18n";
+import { i18nInstance, SupportedLanguage } from "../../languages/i18n";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Screen dimensions

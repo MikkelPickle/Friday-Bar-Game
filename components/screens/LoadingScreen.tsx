@@ -17,7 +17,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ onFinish }) => {
   return (
     <View style={styles.container}>
       <Image
-        source={require("../assets/logo.png")}
+        source={require("../../assets/logo.png")}
         style={styles.logo}
         resizeMode="contain"
       />

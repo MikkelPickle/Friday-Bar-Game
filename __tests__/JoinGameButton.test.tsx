@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import JoinGameButton from '../buttons/JoinGameButton';
+import JoinGameButton from '../components/buttons/JoinGameButton';
 
 describe('JoinGameButton', () => {
   it('renders correctly and responds to press', () => {
