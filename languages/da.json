@@ -1,0 +1,11 @@
+{
+  "joinGame": "Deltag i spil",
+  "newGame": "Nyt spil",
+  "menu": {
+    "about": "Om appen",
+    "map": "Kort",
+    "scoreboard": "Scoreboard",
+    "account": "Konto",
+    "contact": "Kontakt" 
+  }
+}

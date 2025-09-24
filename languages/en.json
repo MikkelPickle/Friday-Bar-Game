@@ -1,0 +1,11 @@
+{
+  "joinGame": "JOIN GAME",
+  "newGame": "NEW GAME",
+  "menu": {
+    "about": "About",
+    "map": "Map",
+    "scoreboard": "Scoreboard",
+    "account": "Account",
+    "contact": "Contact"
+  }
+}
