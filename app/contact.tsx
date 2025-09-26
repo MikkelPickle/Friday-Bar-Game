@@ -4,7 +4,7 @@ import BackButton from "../components/buttons/BackButton";
 import { useTranslation } from "react-i18next";
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-export default function About() {
+export default function Contact() {
   const { t } = useTranslation();
 
   return (
@@ -27,7 +27,7 @@ export default function About() {
         end={{ x: 1, y: 0 }}
         style={styles.headlineBox}
       >
-        <Text style={styles.headline}>{t("menu.about")}</Text>
+        <Text style={styles.headline}>{t("menu.contact")}</Text>
       </LinearGradient>
 
 
@@ -37,7 +37,7 @@ export default function About() {
           style={styles.box}
         >
           <Text style={styles.boxText}>
-            {t("aboutAppText")}</Text>
+            {t("contactText")}</Text>
         </LinearGradient>
       </ScrollView>
     </LinearGradient>

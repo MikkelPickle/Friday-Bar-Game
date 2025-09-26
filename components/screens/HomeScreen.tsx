@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
 import LanguageButton from "../buttons/LanguageButton";
 import Burger from "../buttons/Burger";
 import Menu from "./Menu";
@@ -10,7 +9,6 @@ import JoinGameButton from "../buttons/JoinGameButton";
 import NewGameButton from "../buttons/NewGameButton";
 
 export default function HomeScreen() {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
 
   return (

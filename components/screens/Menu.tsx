@@ -17,6 +17,7 @@ const Menu = ({ open }) => {
   }, [open]);
 
   const handleNavigation = (path: string) => {
+    console.log("Trying to navigate to ", path);
     router.push(path);
   };
 

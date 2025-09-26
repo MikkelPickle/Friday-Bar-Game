@@ -36,6 +36,20 @@ export default function Layout() {
             animation: "slide_from_right",
           }}
         />
+        <Stack.Screen
+          name="contact"
+          options={{
+            presentation: "card", // normal push animation
+            animation: "slide_from_right",
+          }}
+        />
+        <Stack.Screen
+          name="map"
+          options={{
+            presentation: "card", // normal push animation
+            animation: "slide_from_right",
+          }}
+        />
       </Stack>
     </View>
   );

@@ -3,7 +3,7 @@ import { View, Text, TextInput, Button, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 
 // ✅ Import Firebase SDK pieces
-import { auth, db } from "../firebase/firebaseConfig"; // adjust if needed
+import { auth, db } from "../../config/firebase.config"; // adjust if needed
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 
