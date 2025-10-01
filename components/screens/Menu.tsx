@@ -17,29 +17,29 @@ const Menu = ({ open }) => {
   }, [open]);
 
   const handleNavigation = (path: string) => {
-    console.log("Trying to navigate to ", path);
+    console.log("Navigating to ", path);
     router.push(path);
   };
 
   return (
     <Animated.View style={[styles.menu, { transform: [{ translateX: slideAnim }] }]}>
-      <TouchableOpacity style={styles.link} onPress={() => handleNavigation("/about")}>
+      <TouchableOpacity style={styles.link} onPress={() => handleNavigation("/About")}>
         <Text style={styles.linkText}>💁🏻‍♂️ {t("menu.about")}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.link} onPress={() => handleNavigation("/map")}>
+      <TouchableOpacity style={styles.link} onPress={() => handleNavigation("/Map")}>
         <Text style={styles.linkText}>🗺️ {t("menu.map")}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.link} onPress={() => handleNavigation("/scoreboard")}>
+      <TouchableOpacity style={styles.link} onPress={() => handleNavigation("/Scoreboard")}>
         <Text style={styles.linkText}>🏆 {t("menu.scoreboard")}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.link} onPress={() => handleNavigation("/account")}>
+      <TouchableOpacity style={styles.link} onPress={() => handleNavigation("/Account")}>
         <Text style={styles.linkText}>👤 {t("menu.account")}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.link} onPress={() => handleNavigation("/contact")}>
+      <TouchableOpacity style={styles.link} onPress={() => handleNavigation("/Contact")}>
         <Text style={styles.linkText}>📩 {t("menu.contact")}</Text>
       </TouchableOpacity>
     </Animated.View>

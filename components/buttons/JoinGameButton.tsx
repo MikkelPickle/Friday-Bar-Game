@@ -1,6 +1,9 @@
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { Dimensions } from "react-native";
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const JoinGameButton = ({ onPress }) => {
   const { t } = useTranslation(); // hook gives you the `t` function
@@ -34,7 +37,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.4,
     shadowRadius: 8,
-    width: 350,
+    width: SCREEN_WIDTH * 0.9,
   },
   text: {
     color: "#E3C134",

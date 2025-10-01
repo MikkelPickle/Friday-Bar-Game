@@ -7,9 +7,11 @@ import Burger from "../buttons/Burger";
 import Menu from "./Menu";
 import JoinGameButton from "../buttons/JoinGameButton";
 import NewGameButton from "../buttons/NewGameButton";
+import { useRouter } from "expo-router";
 
 export default function HomeScreen() {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <LinearGradient
@@ -27,8 +29,14 @@ export default function HomeScreen() {
       <Menu open={open} />
 
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center", gap: 25 }}>
-        <NewGameButton onPress={() => console.log("New Game pressed!")} />
-        <JoinGameButton onPress={() => console.log("Join Game pressed!")} />
+        <NewGameButton onPress={() => {
+        console.log("New Game pressed!");
+        router.push("/NewLobbyScreen");
+        }} />
+        <JoinGameButton onPress={() => {
+          console.log("Join Game pressed!");
+          router.push("/JoinLobbyScreen");
+        }} />
 
       </View>
 

@@ -30,26 +30,40 @@ export default function Layout() {
       >
         <Stack.Screen name="index" />
         <Stack.Screen
-          name="about"
+          name="About"
           options={{
             presentation: "card", // normal push animation
             animation: "slide_from_right",
           }}
         />
         <Stack.Screen
-          name="contact"
+          name="Contact"
           options={{
             presentation: "card", // normal push animation
             animation: "slide_from_right",
           }}
         />
         <Stack.Screen
-          name="map"
+          name="Map"
           options={{
             presentation: "card", // normal push animation
             animation: "slide_from_right",
           }}
         />
+        <Stack.Screen
+        name="JoinLobbyScreen"
+        options={{
+          presentation: "card",
+          animation: "slide_from_bottom", // 👈 slides up
+        }}
+      />
+      <Stack.Screen
+        name="NewLobbyScreen"
+        options={{
+          presentation: "card",
+          animation: "slide_from_bottom", // 👈 slides up
+        }}
+      />
       </Stack>
     </View>
   );

@@ -2,19 +2,31 @@
   "Alkymia": {
     "name": "Alkymia",
     "coordinate": { "latitude": 56.1682, "longitude": 10.199 },
-    "description": "Alkymia",
     "faculty": "Science"
   },
   "Kalkulerbar": {
     "name": "Kalkulerbar",
     "coordinate": { "latitude": 56.1667, "longitude": 10.1996 },
-    "description": "Kalkulerbar",
     "faculty": "Science"
   },
   "Fredagscaféen": {
     "name": "Fredagscaféen",
     "coordinate": { "latitude": 56.1716, "longitude": 10.19 },
-    "description": "Fredagscaféen",
     "faculty": "Science"
+  },
+  "Paideia": {
+    "name": "Paideia",
+    "coordinate": { "latitude": 56.17268989062043, "longitude": 10.205667915343266 },
+    "faculty": "Arts"
+  },
+  "Katrine's Kælder": {
+    "name": "Katrine's Kælder",
+    "coordinate": { "latitude": 56.1720, "longitude": 10.1913 },
+    "faculty": "Engineering"
+  },
+  "Samfbar": {
+    "name": "Samfbar",
+    "coordinate": { "latitude": 56.1699, "longitude": 10.2047 },
+    "faculty": "Business"
   }
 }
