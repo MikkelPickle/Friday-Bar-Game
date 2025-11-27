@@ -30,6 +30,13 @@ export default function Layout() {
       >
         <Stack.Screen name="index" />
         <Stack.Screen
+          name="WelcomeScreen"
+          options={{
+            presentation: "card", // normal push animation
+            animation: "fade",
+          }}
+        />
+        <Stack.Screen
           name="About"
           options={{
             presentation: "card", // normal push animation
@@ -58,7 +65,7 @@ export default function Layout() {
         }}
       />
       <Stack.Screen
-        name="NewLobbyScreen"
+        name="lobby/[lobbyId]"
         options={{
           presentation: "card",
           animation: "slide_from_bottom", // 👈 slides up

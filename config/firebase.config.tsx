@@ -18,7 +18,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
-export const functions = getFunctions(app, "europe-west10");
+export const functions = getFunctions(app);
 
 if (__DEV__) {
   // Point to local emulators in development mode

@@ -14,6 +14,7 @@ import { Dimensions } from "react-native";
 import JoinGameButton from "../components/buttons/JoinGameButton";
 import { useTranslation } from "react-i18next";
 import { joinExistingLobby } from "./LobbyService";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -21,16 +22,15 @@ export default function JoinLobbyScreen() {
   const [pin, setPin] = useState("");
   const router = useRouter();
   const { t } = useTranslation();
-  const [name, setName] = useState("");
-  const [players, setPlayers] = useState<{ name: string }[]>([]);
 
   const handleJoin = async () => {
   try {
-    const { lobbyId, players } = await joinExistingLobby(Number(pin), name);
-
+    const playerName = await AsyncStorage.getItem("playerName");
+    console.log(`Player ${playerName} is trying to join`)
+    const { lobbyId, players } = await joinExistingLobby(Number(pin), playerName);
     router.push({
       pathname: `/lobby/${lobbyId}`,
-      params: { initialPlayers: JSON.stringify(players) }, // 👈 pass players
+      params: { gamePin: Number(pin), initialPlayers: JSON.stringify(players) } // 👈 pass players
     });
   } catch (err: any) {
     alert(err.message);
@@ -67,7 +67,6 @@ export default function JoinLobbyScreen() {
         <JoinGameButton onPress={() => {
           handleJoin();
           console.log("Join Game pressed!");
-          router.push("/LobbyScreen"); 
         }} />
         </View>
       </KeyboardAvoidingView>
