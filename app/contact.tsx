@@ -51,11 +51,11 @@ const styles = StyleSheet.create({
   header: {
     position: "absolute",
     top: SCREEN_HEIGHT * 0.04,
-    left: SCREEN_WIDTH * 0.04,
+    left: SCREEN_WIDTH * 0.01,
     zIndex: 10,
   },
   scrollContent: {
-    paddingTop: SCREEN_HEIGHT * 0.15,
+    paddingTop: SCREEN_HEIGHT * 0.18,
     alignItems: "center",
     paddingBottom: SCREEN_HEIGHT * 0.1,
   },
@@ -80,11 +80,11 @@ headlineBox: {
   shadowOpacity: 0.3,
   shadowRadius: 6,
   elevation: 5,
-  width: SCREEN_WIDTH * 0.9,
+  width: SCREEN_WIDTH * 0.91,
 },
   box: {
     minHeight: 650,
-    width: SCREEN_WIDTH * 0.9,
+    width: SCREEN_WIDTH * 0.91,
     marginVertical: 10,
     borderRadius: 20,
     justifyContent: "flex-start",

@@ -92,16 +92,16 @@ const LanguageButton: React.FC = () => {
     // 🔥 Pulse animation on selected flag
     Animated.sequence([
       Animated.spring(pressScaleFlags[index], {
-        toValue: 1.15,
+        toValue: 1,
         useNativeDriver: true,
         speed: 20,
-        bounciness: 15,
+        bounciness: 25,
       }),
       Animated.spring(pressScaleFlags[index], {
         toValue: 1,
         useNativeDriver: true,
         speed: 20,
-        bounciness: 15,
+        bounciness: 25,
       }),
     ]).start();
 
@@ -138,7 +138,7 @@ const LanguageButton: React.FC = () => {
             toValue: 0.85,
             useNativeDriver: true,
             speed: 20,
-            bounciness: 0,
+            bounciness: 35,
           }).start();
         }}
         onPressOut={() => {
@@ -146,7 +146,7 @@ const LanguageButton: React.FC = () => {
             toValue: 1,
             useNativeDriver: true,
             speed: 20,
-            bounciness: 15,
+            bounciness: 35,
           }).start();
         }}
       >
@@ -212,7 +212,7 @@ const LanguageButton: React.FC = () => {
                     toValue: 1,
                     useNativeDriver: true,
                     speed: 20,
-                    bounciness: 15,
+                    bounciness: 50,
                   }).start();
                 }}
               >
@@ -263,11 +263,11 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   flagButton: {
-    backgroundColor: "#DA3485",
+    backgroundColor: "#FF1493",
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#DA3485",
+    borderColor: "#FF1493",
     shadowColor: "#000",
     shadowOpacity: 0.25,
     shadowOffset: { width: 0, height: 3 },

@@ -108,7 +108,7 @@ export default function Map() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { position: "absolute", top: SCREEN_HEIGHT * 0.04, left: SCREEN_WIDTH * 0.04, zIndex: 10 },
+  header: { position: "absolute", top: SCREEN_HEIGHT * 0.04, left: SCREEN_WIDTH * 0.01, zIndex: 10 },
   map: { flex: 1 },
 
   callout: {

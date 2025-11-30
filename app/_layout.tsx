@@ -58,10 +58,17 @@ export default function Layout() {
           }}
         />
         <Stack.Screen
-        name="JoinLobbyScreen"
-        options={{
-          presentation: "card",
-          animation: "slide_from_bottom", // 👈 slides up
+          name="Scoreboard"
+          options={{
+            presentation: "card", // normal push animation
+            animation: "slide_from_right",
+          }}
+        />
+        <Stack.Screen
+          name="JoinLobbyScreen"
+          options={{
+            presentation: "card",
+            animation: "slide_from_bottom", // 👈 slides up
         }}
       />
       <Stack.Screen

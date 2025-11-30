@@ -1,43 +1,77 @@
 //create save button component
 
-import { Pressable } from "react-native";
-import { Text, StyleSheet, Dimensions } from "react-native";
+import React from "react";
+import { Text, View, StyleSheet, Pressable, Dimensions } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolate,
+} from "react-native-reanimated";
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-const SaveStudyButton = ({ saveName }) => { 
-    return (
-    <Pressable style={styles.button} onPress={saveName}>
-        <Text style={styles.text}>Save</Text>
+const DURATION = 180; // slightly snappier for your large button
+const SHADOW_HEIGHT = 12;
+
+const SaveStudyButton = ({ saveName }) => {
+  const transition = useSharedValue(0);
+  const isActive = useSharedValue(false);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    top: interpolate(transition.value, [0, 1], [0, SHADOW_HEIGHT]),
+  }));
+
+  return (
+    <Pressable
+      onPress={saveName}
+      hitSlop={16}
+      onPressIn={() => {
+        isActive.value = true;
+        transition.value = withTiming(1, { duration: DURATION }, () => {
+          if (!isActive.value) {
+            transition.value = withTiming(0, { duration: DURATION });
+          }
+        });
+      }}
+      onPressOut={() => {
+        transition.value = withTiming(0, { duration: DURATION });
+        isActive.value = false;
+      }}
+    >
+      <View>
+        {/* Shadow layer */}
+        <View style={styles.shadow} />
+
+        {/* Button layer */}
+        <Animated.View style={[styles.button, animatedStyle]}>
+          <Text style={styles.text}>Save</Text>
+        </Animated.View>
+      </View>
     </Pressable>
-    );
-}
+  );
+};
 
 const styles = StyleSheet.create({
-  shadowContainer: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.6,
-    shadowRadius: 15,
-    elevation: 15,
-    borderRadius: 20,
+  shadow: {
+    backgroundColor: "#9b0c58ff", // darker pink for shadow depth
+    height: 70,
+    width: SCREEN_WIDTH * 0.9,
+    borderRadius: 35,
+    position: "absolute",
+    top: SHADOW_HEIGHT,
   },
   button: {
     backgroundColor: "#FF1493",
-    paddingVertical: 20,
-    paddingHorizontal: 70,
+    height: 70,
+    width: SCREEN_WIDTH * 0.9,
     borderRadius: 35,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    width: SCREEN_WIDTH * 0.9,
   },
   text: {
     color: "#E3C134",
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "900",
     letterSpacing: 2,
     textTransform: "uppercase",
@@ -46,5 +80,4 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
 });
-
 export default SaveStudyButton;

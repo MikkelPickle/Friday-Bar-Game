@@ -16,8 +16,6 @@ interface Props {
   onSelect?: (value: string | null) => void;
 }
 
-const STORAGE_KEY = 'student_field_of_study';
-
 const FieldOfStudyDropdown: React.FC<Props> = ({ onSelect }) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState<string | null>(null);
@@ -35,7 +33,7 @@ const FieldOfStudyDropdown: React.FC<Props> = ({ onSelect }) => {
   useEffect(() => {
     const loadStoredValue = async () => {
       try {
-        const storedValue = await AsyncStorage.getItem(STORAGE_KEY);
+        const storedValue = await AsyncStorage.getItem('playerStudy');
         if (storedValue) {
           setValue(storedValue);
           onSelect?.(storedValue);
@@ -78,8 +76,9 @@ export default FieldOfStudyDropdown;
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 5
+    marginTop: 5,
   },
+
   dropdown: {
     borderRadius: 20,
     borderWidth: 3,
@@ -87,36 +86,43 @@ const styles = StyleSheet.create({
     height: SCREEN_HEIGHT * 0.09,
     borderColor: '#ff88e8',
     backgroundColor: "rgba(255,255,255,0.2)",
-    paddingVertical: 20,
-    paddingHorizontal: 30,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
     marginBottom: 30,
   },
+
   dropdownContainer: {
-    marginTop: 25,
+    marginTop: 20,
     borderRadius: 20,
     borderWidth: 3,
-    borderColor: '#ff88e8', //light gray
+    borderColor: '#ff88e8',
     backgroundColor: '#FFF0F0',
-    width: SCREEN_WIDTH * 0.9, 
+    width: SCREEN_WIDTH * 0.9,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 10,
+    maxHeight: SCREEN_HEIGHT * 0.4,
   },
+
   dropdownText: {
     textAlign: 'center',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '600',
     color: '#fff',
   },
+
   itemLabel: {
     textAlign: 'left',
+    paddingTop: 10,
     fontSize: 16,
     fontWeight: '600',
-    color: '#000', //black
-    padding: 15,
-    borderBottomWidth: 3,
-    borderBottomColor: '#eee'
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    color: '#000',
+    borderBottomWidth: 2,
+    borderBottomColor: '#eee',
   },
 });
+

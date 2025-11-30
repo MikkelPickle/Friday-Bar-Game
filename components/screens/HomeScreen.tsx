@@ -31,6 +31,7 @@ export default function HomeScreen() {
   
   useEffect(() => {
     const checkName = async () => {
+      //await AsyncStorage.removeItem("playerName");
       const name = await AsyncStorage.getItem("playerName");
       if (!name) {
         router.replace("/WelcomeScreen");
@@ -50,8 +51,7 @@ export default function HomeScreen() {
 
       {open && (
         <Pressable style={styles.overlay} 
-        onPress={() => setOpen(false)}
-        pointerEvents={open ? "auto" : "none"} />
+        onPress={() => setOpen(false)} />
       )}
 
       <Menu open={open} />
