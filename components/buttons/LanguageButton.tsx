@@ -138,7 +138,7 @@ const LanguageButton: React.FC = () => {
             toValue: 0.85,
             useNativeDriver: true,
             speed: 20,
-            bounciness: 35,
+            bounciness: 0,
           }).start();
         }}
         onPressOut={() => {
@@ -263,18 +263,23 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   flagButton: {
-    backgroundColor: "#FF1493",
+    backgroundColor: "rgba(255, 255, 255, 0.8)", 
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#FF1493",
-    shadowColor: "#000",
-    shadowOpacity: 0.25,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 4,
-    elevation: 4,
+    borderWidth: 2,
+    overflow: "hidden",
+    borderColor: "#DA3485",
+    shadowColor: "#000000ff",
+    shadowOpacity: 0.65,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 8,
   },
-  flagEmoji: {},
+  flagEmoji: {
+    shadowColor: "#723affff",
+    shadowOpacity: 0.45,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 8,
+  },
 });
 
 export default LanguageButton;

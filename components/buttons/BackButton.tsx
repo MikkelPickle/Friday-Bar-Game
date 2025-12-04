@@ -33,6 +33,7 @@ export default function BackButton() {
 
   return (
     <Pressable
+      hitSlop={16}
       onPressIn={() => {
         Animated.spring(pressScale, {
           toValue: 0.8,

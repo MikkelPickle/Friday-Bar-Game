@@ -16,17 +16,14 @@ export default function WelcomeScreen() {
   const router = useRouter();
 
   const saveData = async () => {
-    if (!name.trim()) {
-      alert("Please enter your name");
-      return;
-    }
-    if (!study) {
-      alert("Please select your field of study");
+    if (!name.trim() || !study) {
+      alert(`Please enter your ${!name.trim() ? "name" : "field of study"}`);
       return;
     }
 
     await AsyncStorage.setItem("playerName", name.trim());
     await AsyncStorage.setItem("playerStudy", study);
+    await AsyncStorage.setItem("playerScore", "0");
 
     router.replace("/");
   };

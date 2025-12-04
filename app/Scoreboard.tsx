@@ -4,17 +4,13 @@ import { LinearGradient } from "expo-linear-gradient";
 import BackButton from "../components/buttons/BackButton";
 import ToggleButton from "../components/buttons/ToggleButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFonts, Orbitron_400Regular, Orbitron_700Bold } from "@expo-google-fonts/orbitron";
+import { useFonts, Orbitron_600SemiBold, Orbitron_700Bold } from "@expo-google-fonts/orbitron";
+import Score from "../components/scoreTypes";
+import { loadAllScores, seedUsers } from "./LobbyService";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-type Score = {
-  name: string;
-  score: number;
-  study: string;
-};
-
-const allScores: Score[] = [
+const allScoresMock: Score[] = [
   { name: 'Alice', score: 95, study: 'cs' },
   { name: 'Bob', score: 88, study: 'science' },
   { name: 'Charlie', score: 92, study: 'math' },
@@ -45,24 +41,54 @@ const allScores: Score[] = [
 
 export default function Scoreboard() {
   const [fontsLoaded] = useFonts({
-    Orbitron_400Regular
-  });
+    Orbitron_600SemiBold,
+    Orbitron_700Bold
+  }); 
+  
   const [fieldOfStudy, setFieldOfStudy] = useState<string | null>(null);
   const [mode, setMode] = useState<"global" | "study">("global");
+  const [allScores, setAllScores] = useState<Score[]>([]);
+  const [studyScores, setStudyScores] = useState<Score[]>([]);
 
   useEffect(() => {
-    const loadField = async () => {
-      const value = await AsyncStorage.getItem("playerStudy");
-      if (value) {
-        setFieldOfStudy(value);
+    async function loadScores() {
+      try {
+        const study = await AsyncStorage.getItem("playerStudy");
+        if (study) {
+          setFieldOfStudy(study);
+        }
+        else {
+          setFieldOfStudy(null);
+          console.log("Field of Study not loaded");
+          return;
+        }
+        console.log("Field of Study loaded:", study);
+        await seedUsers(); // Uncomment this line to seed users for testing
+        const { allScores, studyScores } = await loadAllScores(study);
+        setAllScores(allScores);
+        setStudyScores(studyScores);
+      } catch (err) {
+        console.error("Failed to load scores for scoreboard:", err);
       }
-      else {
-        setFieldOfStudy(null);
-      }
-    };
+    }
 
-    loadField();
+    loadScores();
   }, []);
+
+  if (!fontsLoaded || !allScores || !studyScores) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "purple",
+        }}
+      >
+        <Text style={{ color: "white", fontSize: 20 }}>Loading...</Text>
+      </View>
+    );
+  }
 
   const handleToggle = () => {
     setMode(prev => (prev === "global" ? "study" : "global"));
@@ -72,11 +98,7 @@ export default function Scoreboard() {
   const displayedScores =
     mode === "global"
       ? allScores
-      : allScores.filter(s => s.study === fieldOfStudy);
-
-  const topScores = displayedScores
-  .sort((a, b) => b.score - a.score)
-  .slice(0, 20); 
+      : studyScores
 
   return (
     <LinearGradient
@@ -96,7 +118,7 @@ export default function Scoreboard() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         <Text style={styles.title}>
-          {mode === "global" ? "Global Rankings" : "Study Rankings"}
+          {mode === "global" ? "All Rankings" : "Study Rankings"}
         </Text>
 
         {/* Rank, name, score */}
@@ -122,7 +144,7 @@ export default function Scoreboard() {
         </View>
 
 
-        {topScores.map((score, index) => {
+        {displayedScores.map((score, index) => {
           // Medal emoji for top 3
           const medal =
             index === 0 ? "🥇" :
@@ -158,10 +180,7 @@ export default function Scoreboard() {
                   : index === 2
                   ? styles.top3Score
                   : styles.scoreText
-              }
-            >
-              {score.score}
-            </Text>
+              }>{score.score}</Text>
 
           </View>
           );
@@ -177,34 +196,35 @@ const styles = StyleSheet.create({
 
     scrollContent: {
       flexGrow: 1,
-      width: SCREEN_WIDTH,
+      alignSelf: "stretch",
       paddingTop: 150,
       paddingHorizontal: 18,
       paddingBottom: 40,
     },
 
     title: {
-      fontSize: 28,
-      fontWeight: "600",
-      color: "white",
-      textAlign: "center", //slightly to the left
-      paddingRight: 10,
-      marginBottom: 20,
+          color: "white",
+    fontSize: 30,
+    fontWeight: "400",
+    opacity: 0.9,
+    marginBottom: 20,
+    textAlign: "center",
+    //make it more to the right
+    marginRight: 10,
     },
+
+
 
     headerRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-
     backgroundColor: "rgba(255, 255, 255, 0.12)",
     borderRadius: 10,
     borderWidth: 3,
-    borderColor: "rgba(255, 255, 255, 0.25)",
-
+    borderColor: "rgba(69, 213, 238, 0.45)",
     paddingVertical: 10,
     marginBottom: 20,
-
     shadowColor: "#000",
     shadowOpacity: 0.35,
     shadowRadius: 6,
@@ -212,10 +232,10 @@ const styles = StyleSheet.create({
     elevation: 6,   // for Android
     },
 
-  headerCell: {
+    headerCell: {
     flex: 1,
     alignItems: "center",
-  },
+    },
 
     headerDivider: {
     flex: 1,
@@ -231,21 +251,21 @@ const styles = StyleSheet.create({
   bottom: -10,
   width: 1,
   backgroundColor: "rgba(255, 255, 255, 0.25)",
-},
+  },
 
-dividerRight: {
+  dividerRight: {
   position: "absolute",
   right: 0,
   top: -10,
   bottom: -10,
   width: 1,
   backgroundColor: "rgba(255, 255, 255, 0.25)",
-},
+  },
 
   headerText: {
     color: "white",
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: 18,
+    fontWeight: "400",
     opacity: 0.9,
   },
 
@@ -273,25 +293,16 @@ dividerRight: {
   width: 32,
   height: 32,
   borderRadius: 18,
-
-  // Soft vertical gradient look (simulated using overlay + shadows)
   backgroundColor: "rgba(255, 255, 255, 0.1)", //translucent purple
-
-
   borderWidth: 1.5,
   borderColor: "rgba(69, 213, 238, 0.45)",
-
   alignItems: "center",
   justifyContent: "center",
   marginRight: 12,
-
-  // Modern uplifted glow
   shadowColor: "#eb3ed7ff",
   shadowOffset: { width: 0, height: 1 },
   shadowOpacity: 0.9,
   shadowRadius: 10,
-
-  // Soft drop shadow for depth
   elevation: 4,
   },
 
@@ -310,36 +321,31 @@ dividerRight: {
   },
 
   scoreText: {
-    fontFamily: "Orbitron_400Regular",
+    fontFamily: "Orbitron_600SemiBold",
     color: "yellow",
     fontSize: 16,
-    fontWeight: "600",
+    marginRight: 10
   },
 
   top1Score: {
-  fontFamily  : "Orbitron_400Regular",
+  fontFamily  : "Orbitron_700Bold",
   fontSize: 22,
-  fontWeight: "700",
   color: "red",
+  marginRight: 10
   },
 
   top2Score: {
-    fontFamily  : "Orbitron_400Regular",
+    fontFamily  : "Orbitron_700Bold",
     fontSize: 20,
-    fontWeight: "700",
     color: "#ff7300ff", //orange
+    marginRight: 10
   },
 
   top3Score: {
-    fontFamily  : "Orbitron_400Regular",
+    fontFamily  : "Orbitron_700Bold",
     fontSize: 18,
-    fontWeight: "700",
     color: "#ffa600ff", //more yellow
-  },
-
-  rankEmoji: {
-    fontSize: 26,
-    marginRight: 10,
+    marginRight: 10
   },
 
   backButton: {

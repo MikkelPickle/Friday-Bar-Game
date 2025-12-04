@@ -31,11 +31,12 @@ export default function HomeScreen() {
   
   useEffect(() => {
     const checkName = async () => {
-      //await AsyncStorage.removeItem("playerName");
+      const study = await AsyncStorage.getItem("playerStudy");
       const name = await AsyncStorage.getItem("playerName");
-      if (!name) {
+      if (!name || !study) {
         router.replace("/WelcomeScreen");
       }
+      console.log("Name:", name, "Field of Study:", study);
     };
     checkName();
   }, []);

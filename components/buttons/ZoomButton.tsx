@@ -1,9 +1,7 @@
-// ZoomButton.tsx
-import React from 'react';
-import { TouchableOpacity, View, Text, StyleSheet, Dimensions } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import React, { useRef } from "react";
+import { TouchableOpacity, StyleSheet, Dimensions, Animated } from "react-native";
+import AntDesign from '@expo/vector-icons/AntDesign';
 
-// Get screen width
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 type Props = {
@@ -11,33 +9,90 @@ type Props = {
 };
 
 const ZoomButton: React.FC<Props> = ({ onPress }) => {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.75,
+      useNativeDriver: true,
+      speed: 20,
+      bounciness: 0,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      speed: 20,
+      bounciness: 8,
+    }).start();
+  };
+
+  const handlePress = () => {
+    // Optional pulse animation
+    Animated.stagger(50, [
+      Animated.spring(scaleAnim, {
+        toValue: 0.7,
+        useNativeDriver: true,
+        speed: 20,
+        bounciness: 0,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+        speed: 20,
+        bounciness: 8,
+      }),
+    ]).start();
+
+    onPress(); // call parent zoom function
+  };
+
   return (
-    <TouchableOpacity style={styles.button} onPress={onPress}>
-      <Ionicons name="locate-sharp" size={35} color="white" />
-    </TouchableOpacity>
+    <Animated.View
+      style={[
+        styles.buttonWrapper,
+        { transform: [{ scale: scaleAnim }] }
+      ]}
+    >
+      <TouchableOpacity
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        hitSlop={16}
+        activeOpacity={0.7}
+        style={styles.button}
+      >
+        <AntDesign name="aim" size={38} color="rgba(255, 255, 255, 0.8)" />
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
+const BUTTON_SIZE = 70;
+
 const styles = StyleSheet.create({
-  button: {
-    position: 'absolute',
-    marginTop: SCREEN_HEIGHT * 0.88,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FF1493', // Blue color for the button
-    padding: 13,
-    borderRadius: 100,
-    marginLeft: SCREEN_WIDTH * 0.75, // Adjust based on button width
-    elevation: 5, // Adds shadow for Android
-    shadowColor: '#000', // Shadow color for iOS
-    shadowOffset: { width: 1, height: 2 }, // Shadow offset for iOS
-    shadowOpacity: 0.2, // Shadow opacity for iOS
-    shadowRadius: 3, // Shadow blur radius for iOS
+  buttonWrapper: {
+    position: "absolute",
+    top: SCREEN_HEIGHT * 0.87,
+    left: SCREEN_WIDTH * 0.73,
+    width: BUTTON_SIZE,
+    height: BUTTON_SIZE,
   },
-  buttonText: {
-    color: 'white',
-    marginLeft: 10, // Space between icon and text
-    fontSize: 16,
+  button: {
+    flex: 1,
+    borderRadius: BUTTON_SIZE / 2,
+    backgroundColor: "rgba(238, 0, 255, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 1, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 5,
+    borderWidth: 1,
+    borderColor: "rgba(238, 0, 255, 0.5)",
   },
 });
 

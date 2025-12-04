@@ -2,9 +2,41 @@
 lib/**/*.js
 lib/**/*.js.map
 
-# TypeScript v1 declaration files
+# TypeScript declaration files
 typings/
 
 # Node.js dependency directory
 node_modules/
+
+# Local environment files
+.env
+env.*
 *.local
+
+# Firebase local emulator data
+.firebase/
+.firebaserc
+
+# Firebase hosting cache
+firebase-debug.log
+firebase-debug.*.log
+
+# MacOS system files
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Optional IDE / Editor files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# OS or editor swap / temp files
+*.swp
+*~

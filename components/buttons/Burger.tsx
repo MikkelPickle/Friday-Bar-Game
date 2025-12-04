@@ -12,6 +12,7 @@ const LINE_WIDTH = BUTTON_SIZE * 0.8;
 
 const Burger = ({ open, setOpen }: { open: boolean; setOpen: (v: boolean) => void }) => {
   const animation = useRef(new Animated.Value(open ? 1 : 0)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     Animated.timing(animation, {
@@ -42,16 +43,64 @@ const Burger = ({ open, setOpen }: { open: boolean; setOpen: (v: boolean) => voi
     ],
   };
 
+   const handlePressIn = () => {
+      Animated.spring(scaleAnim, {
+        toValue: 0.75,
+        useNativeDriver: true,
+        speed: 20,
+        bounciness: 0,
+      }).start();
+    };
+  
+    const handlePressOut = () => {
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+        speed: 20,
+        bounciness: 20,
+      }).start();
+    };
+
+  const handlePress = () => {
+      // Optional pulse animation
+      Animated.stagger(50, [
+        Animated.spring(scaleAnim, {
+          toValue: 0.7,
+          useNativeDriver: true,
+          speed: 20,
+          bounciness: 0,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          useNativeDriver: true,
+          speed: 20,
+          bounciness: 20,
+        }),
+      ]).start();
+  
+      setOpen(!open); // call parent zoom function
+    };
+
   return (
-    <TouchableOpacity
-      style={styles.burger}
-      onPress={() => setOpen(!open)}
-      activeOpacity={0.8}
+    <Animated.View
+      style={[
+        styles.burger,
+        { transform: [{ scale: scaleAnim }] },
+      ]}
     >
-      <Animated.View style={[styles.line, topLineStyle]} />
-      <Animated.View style={[styles.line, middleLineStyle]} />
-      <Animated.View style={[styles.line, bottomLineStyle]} />
-    </TouchableOpacity>
+      <TouchableOpacity
+        hitSlop={16}
+        onPress={handlePress}
+        onPressIn={handlePressIn} 
+        onPressOut={handlePressOut}
+        activeOpacity={0.6}
+        style={{ width: "100%", height: "100%", justifyContent: "space-around", alignItems: "center" }}
+      >
+        <Animated.View style={[styles.line, topLineStyle]} />
+        <Animated.View style={[styles.line, middleLineStyle]} />
+        <Animated.View style={[styles.line, bottomLineStyle]} />
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
@@ -62,8 +111,6 @@ const styles = StyleSheet.create({
     left: LEFT_OFFSET,
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,
-    justifyContent: "space-around",
-    alignItems: "center",
     zIndex: 20,
   },
   line: {
