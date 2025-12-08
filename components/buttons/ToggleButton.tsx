@@ -1,11 +1,10 @@
 import React, { useRef, useState } from "react";
-import { View, TouchableOpacity, Text, StyleSheet, Dimensions, Animated } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Dimensions, Animated } from "react-native";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const BUTTON_SIZE = SCREEN_WIDTH * 0.2;
-const TOP_OFFSET = SCREEN_HEIGHT * 0.075;
-const RIGHT_OFFSET = SCREEN_WIDTH * 0.02;
+const TOP_OFFSET = SCREEN_HEIGHT * 0.12;
 
 type ToggleButtonProps = {
   activeMode: "global" | "study";
@@ -87,8 +86,8 @@ export default function ToggleButton({ activeMode, onToggle }: ToggleButtonProps
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
+    right: 18,
     top: TOP_OFFSET,
-    right: RIGHT_OFFSET,
   },
     button: {
   width: BUTTON_SIZE * 0.9,
@@ -97,6 +96,7 @@ const styles = StyleSheet.create({
   justifyContent: "center",
   alignItems: "center",
   overflow: "hidden",
+  zIndex: 20,
 
   // Stronger border
   borderWidth: 2,

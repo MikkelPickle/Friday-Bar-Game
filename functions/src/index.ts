@@ -431,6 +431,9 @@ export const seedUsers = onCall(async () => {
     { uid: "dummy1", email: "dummy1@example.com", username: "Alice", score: 90, study: "cs" },
     { uid: "dummy2", email: "dummy2@example.com", username: "Bob", score: 85, study: "math" },
     { uid: "dummy3", email: "dummy3@example.com", username: "Charlie", score: 92, study: "science" },
+    { uid: "dummy4", email: "dummy4@example.com", username: "Peggy", score: 100, study: "science" },
+    { uid: "dummy5", email: "dummy5@example.com", username: "Daphne", score: 75, study: "math" },
+    //add more dummy users !!
   ];
 
   for (const user of dummyUsers) {

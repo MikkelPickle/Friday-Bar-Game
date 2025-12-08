@@ -44,13 +44,13 @@ export default function JoinLobbyScreen() {
       end={{ x: 0, y: 1 }}
       style={styles.container}
     >
+      <View style={styles.backButton}>
+          <BackButton />
+        </View>
       <KeyboardAvoidingView
         style={styles.inner}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <View style={styles.header}>
-          <BackButton />
-        </View>
 
         <TextInput
           style={styles.input}
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 170,
   },
-  header: { position: "absolute", top: SCREEN_HEIGHT * 0.04, left: SCREEN_WIDTH * 0.04, zIndex: 10 },
+  backButton: { zIndex: 10 },
   input: {
     backgroundColor: "#fff",
     borderRadius: 30,

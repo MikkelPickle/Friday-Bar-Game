@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, StyleSheet, Dimensions } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import { View, Text, ScrollView, StyleSheet, Animated } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import BackButton from "../components/buttons/BackButton";
 import ToggleButton from "../components/buttons/ToggleButton";
@@ -7,37 +7,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFonts, Orbitron_600SemiBold, Orbitron_700Bold } from "@expo-google-fonts/orbitron";
 import Score from "../components/scoreTypes";
 import { loadAllScores, seedUsers } from "./LobbyService";
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-
-const allScoresMock: Score[] = [
-  { name: 'Alice', score: 95, study: 'cs' },
-  { name: 'Bob', score: 88, study: 'science' },
-  { name: 'Charlie', score: 92, study: 'math' },
-  { name: 'David', score: 85, study: 'science' },
-  { name: 'Eve', score: 90, study: 'math' }, 
-  { name: 'Frank', score: 80, study: 'cs' },
-  { name: 'Grace', score: 87, study: 'math' },
-  { name: 'Heidi', score: 93, study: 'science' },
-  { name: 'Ivan', score: 78, study: 'cs' },
-  { name: 'Judy', score: 89, study: 'math' },
-  { name: 'Karl', score: 91, study: 'science' },
-  { name: 'Laura', score: 84, study: 'cs' },
-  { name: 'Mallory', score: 86, study: 'math' },
-  { name: 'Niaj', score: 94, study: 'science' },
-  { name: 'Olivia', score: 79, study: 'cs' },
-  { name: 'Peggy', score: 83, study: 'math' },
-  { name: 'Quentin', score: 82, study: 'science' },
-  { name: 'Rupert', score: 77, study: 'cs' },
-  { name: 'Sybil', score: 96, study: 'math' },
-  { name: 'Trent', score: 81, study: 'science' },
-  { name: 'Ursula', score: 97, study: 'cs' },
-  { name: 'Vivian', score: 99, study: 'math' },
-  { name: 'Walter', score: 98, study: 'science' },
-  { name: 'Xavier', score: 100, study: 'cs' },
-  { name: 'Yvonne', score: 95, study: 'math' },
-  { name: 'Zachary', score: 88, study: 'science' },
-];
 
 export default function Scoreboard() {
   const [fontsLoaded] = useFonts({
@@ -47,8 +16,47 @@ export default function Scoreboard() {
   
   const [fieldOfStudy, setFieldOfStudy] = useState<string | null>(null);
   const [mode, setMode] = useState<"global" | "study">("global");
-  const [allScores, setAllScores] = useState<Score[]>([]);
-  const [studyScores, setStudyScores] = useState<Score[]>([]);
+  const [allScores, setAllScores] = useState<Score[] | null>(null);
+  const [studyScores, setStudyScores] = useState<Score[] | null>(null);
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const loopAnim = useRef(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+  if (!fontsLoaded || !allScores || !studyScores) {
+    setLoading(true);
+  } else {
+    setLoading(false);
+  }
+  }, [fontsLoaded, allScores, studyScores]);
+
+  useEffect(() => {
+    if (loading) {
+      fadeAnim.setValue(1);
+      // Start animation
+      loopAnim.current = Animated.loop(
+        Animated.sequence([
+          Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+
+      loopAnim.current.start();
+    } else {
+      // Stop animation when data has loaded
+      if (loopAnim.current) {
+        loopAnim.current.stop();
+      }
+    }
+  }, [loading]);
 
   useEffect(() => {
     async function loadScores() {
@@ -59,14 +67,15 @@ export default function Scoreboard() {
         }
         else {
           setFieldOfStudy(null);
-          console.log("Field of Study not loaded");
-          return;
+          alert("No field of study found in storage!");
         }
         console.log("Field of Study loaded:", study);
         await seedUsers(); // Uncomment this line to seed users for testing
         const { allScores, studyScores } = await loadAllScores(study);
+        setTimeout(async () => {
         setAllScores(allScores);
         setStudyScores(studyScores);
+      }, 3000); 
       } catch (err) {
         console.error("Failed to load scores for scoreboard:", err);
       }
@@ -75,30 +84,68 @@ export default function Scoreboard() {
     loadScores();
   }, []);
 
-  if (!fontsLoaded || !allScores || !studyScores) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "purple",
-        }}
-      >
-        <Text style={{ color: "white", fontSize: 20 }}>Loading...</Text>
-      </View>
-    );
-  }
-
   const handleToggle = () => {
-    setMode(prev => (prev === "global" ? "study" : "global"));
-    console.log("Field of Study loaded:", fieldOfStudy);
+  if (!fieldOfStudy) {
+    setMode("global");
+    return;
+  }
+  setMode(prev => (prev === "global" ? "study" : "global"));
   };
 
   const displayedScores =
     mode === "global"
       ? allScores
       : studyScores
+
+if (loading) {
+    return (
+      <LinearGradient
+      colors={["#4e2489ff", "#1b1a1aff"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={styles.container}
+    >
+      <View style={styles.backButton}>
+        <BackButton />
+      </View>
+
+      <View style={styles.toggleButton}>
+        <ToggleButton activeMode={mode} onToggle={handleToggle} />
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        
+        <Text style={styles.title}>
+          {mode === "global" ? "All Rankings" : "Study Rankings"}
+        </Text>
+
+        {/* Rank, name, score */}
+        <View style={styles.headerRow}>
+  
+          <View style={styles.headerCell}>
+            <Text style={styles.headerText}>Rank</Text>
+          </View>
+
+          <View style={styles.headerDivider}>
+            {/* Left border */}
+            <View style={styles.dividerLeft} />
+            {/* Right border */}
+            <View style={styles.dividerRight} />
+
+            <Text style={styles.headerText}>Name</Text>
+          </View>
+
+          <View style={styles.headerCell}>
+            <Text style={styles.headerText}>Score</Text>
+          </View>
+        </View>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginBottom: 100 }}>
+          <Animated.Text style={{fontSize: 25, fontWeight: "400", color: "#FF1493", opacity: fadeAnim}}>Loading scores...</Animated.Text>
+        </View>
+        </ScrollView>
+    </LinearGradient>
+    );
+  } else {
 
   return (
     <LinearGradient
@@ -145,29 +192,13 @@ export default function Scoreboard() {
 
 
         {displayedScores.map((score, index) => {
-          // Medal emoji for top 3
-          const medal =
-            index === 0 ? "🥇" :
-            index === 1 ? "🥈" :
-            index === 2 ? "🥉" :
-            null;
 
           return (
             <View key={index} style={styles.item}>
             <View style={styles.leftSection}>
-
-              {/* Medal for top 3 */}
-              {index < 3 ? (
-                <Text style={styles.medalText}>
-                  {medal}
-                </Text>
-              ) : (
-                /* Circle for all others */
                 <View style={styles.indexCircle}>
                   <Text style={styles.indexText}>{index + 1}</Text>
                 </View>
-              )}
-
               <Text style={styles.nameText}>{score.name}</Text>
             </View>
 
@@ -188,7 +219,7 @@ export default function Scoreboard() {
       </ScrollView>
     </LinearGradient>
   );
-}
+}}
 
 const styles = StyleSheet.create({
 
@@ -203,7 +234,7 @@ const styles = StyleSheet.create({
     },
 
     title: {
-          color: "white",
+    color: "white",
     fontSize: 30,
     fontWeight: "400",
     opacity: 0.9,
@@ -212,8 +243,6 @@ const styles = StyleSheet.create({
     //make it more to the right
     marginRight: 10,
     },
-
-
 
     headerRow: {
     flexDirection: "row",
@@ -349,16 +378,10 @@ const styles = StyleSheet.create({
   },
 
   backButton: {
-    position: "absolute",
-    top: SCREEN_HEIGHT * 0.04,
-    left: SCREEN_WIDTH * 0.01,
     zIndex: 10,
   },
 
   toggleButton: {
-    position: "absolute",
-    top: SCREEN_HEIGHT * 0.039,
-    right: SCREEN_WIDTH * 0.027,
     zIndex: 10,
   },
 });

@@ -1,7 +1,7 @@
 // components/BackButton.tsx
 import React, { useRef } from "react";
 import {
-  Pressable,
+  TouchableOpacity,
   Animated,
   StyleSheet,
   Dimensions,
@@ -12,9 +12,8 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-const BUTTON_SIZE = SCREEN_WIDTH * 0.2;
-const TOP_OFFSET = SCREEN_HEIGHT * 0.05;
-const LEFT_OFFSET = SCREEN_WIDTH * -0.02;
+const BUTTON_SIZE = SCREEN_WIDTH * 0.23;
+const TOP_OFFSET = SCREEN_HEIGHT * 0.094;
 
 export default function BackButton() {
   const router = useRouter();
@@ -32,8 +31,9 @@ export default function BackButton() {
   };
 
   return (
-    <Pressable
+    <TouchableOpacity
       hitSlop={16}
+      activeOpacity={0.7}
       onPressIn={() => {
         Animated.spring(pressScale, {
           toValue: 0.8,
@@ -55,10 +55,7 @@ export default function BackButton() {
         // Only fires if user releases inside the button
         triggerBackAnimation();
       }}
-      style={({ pressed }) => [
-        styles.button,
-        { opacity: pressed ? 0.5 : 1 },
-      ]}
+      style={styles.button}
     >
       <Animated.View
         style={{
@@ -71,7 +68,7 @@ export default function BackButton() {
           color="#FF1493"
         />
       </Animated.View>
-    </Pressable>
+    </TouchableOpacity>
       );
 }
 
@@ -79,11 +76,10 @@ const styles = StyleSheet.create({
   button: {
     position: "absolute",
     top: TOP_OFFSET,
-    left: LEFT_OFFSET,
+    left: -5,
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,
     justifyContent: "center",
-    alignItems: "center",
-    zIndex: 20,
+    alignItems: "center"
   },
 });

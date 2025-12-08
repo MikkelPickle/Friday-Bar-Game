@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   shadow: {
     backgroundColor: "#9b0c58ff", // darker pink for shadow depth
     height: 70,
-    width: SCREEN_WIDTH * 0.9,
+    width: SCREEN_WIDTH * 0.85,
     borderRadius: 35,
     position: "absolute",
     top: SHADOW_HEIGHT,
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#FF1493",
     height: 70,
-    width: SCREEN_WIDTH * 0.9,
+    width: SCREEN_WIDTH * 0.85,
     borderRadius: 35,
     justifyContent: "center",
     alignItems: "center",

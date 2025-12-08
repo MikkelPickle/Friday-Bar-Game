@@ -65,6 +65,14 @@ export default function Layout() {
           }}
         />
         <Stack.Screen
+          name="Account"
+          options={{
+            presentation: "card", // normal push animation
+            animation: "slide_from_right",
+            
+          }}
+        />
+        <Stack.Screen
           name="JoinLobbyScreen"
           options={{
             presentation: "card",

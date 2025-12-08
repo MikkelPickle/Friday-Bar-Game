@@ -5,7 +5,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const BUTTON_SIZE = SCREEN_WIDTH * 0.12;
 const BUTTON_SPACING = SCREEN_WIDTH * 0.02;
-const TOP_OFFSET = SCREEN_HEIGHT * 0.1;
+const TOP_OFFSET = SCREEN_HEIGHT * 0.123;
 const LEFT_OFFSET = SCREEN_WIDTH * 0.05;
 const LINE_HEIGHT = BUTTON_SIZE * 0.12;
 const LINE_WIDTH = BUTTON_SIZE * 0.8;

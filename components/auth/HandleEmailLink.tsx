@@ -12,18 +12,19 @@ export default function HandleEmailLink() {
 
   useEffect(() => {
     const handleUrl = async (url: string) => {
-      if (!isSignInWithEmailLink(auth, url)) return;
-
-      const email = await SecureStore.getItemAsync("emailForSignIn");
+      if (isSignInWithEmailLink(auth, url)) {
+      let email = await SecureStore.getItemAsync("emailForSignIn");
       if (!email) {
-        setStatus("No email found. Please re-enter your email.");
-        return;
+        email = prompt('Please provide your email for confirmation:');
       }
-
       try {
         // Sign in the user with the email link
-        const { user } = await signInWithEmailLink(auth, email, url);
-
+        if (email) {
+        await signInWithEmailLink(auth, email, url);
+        console.log('Successfully signed in with email link!');
+        // Navigate to your authenticated part of the app
+        } else {
+        setStatus("Email not provided for sign-in.");}
         // Check if the user exists
         const exists = await checkIfUserExists();
         if (exists) {
@@ -38,29 +39,22 @@ export default function HandleEmailLink() {
           // Add new user
           const name = await AsyncStorage.getItem("playerName");
           const study = await AsyncStorage.getItem("playerStudy");
-
-          if (!name || !study) {
-            console.error("Missing player name or study information.");
-            setStatus("Missing name or study info. Cannot sign in.");
-            return;
-          }
-
+          await AsyncStorage.setItem("playerScore", "0");
           const added = await addNewUser(name, study);
           if (!added) {
             console.error("Failed to add user:", name);
             setStatus("Failed to sign in. Try again.");
             return;
           }
-
           console.log("Added user:", name);
         }
-
         setStatus("Signed in successfully!");
       } catch (err) {
         console.error("Error signing in with email link:", err);
         setStatus("Failed to sign in. Try again.");
       }
-    };
+    }
+  };
 
     // Cold start
     Linking.getInitialURL().then(url => url && handleUrl(url));

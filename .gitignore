@@ -42,3 +42,10 @@ yarn-error.*
 
 # firebase
 .env
+
+#public colder
+public/
+
+#build
+google-services.json
+GoogleService-Info.plist

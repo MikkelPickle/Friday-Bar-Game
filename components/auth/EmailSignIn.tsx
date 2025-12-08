@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, Text } from "react-native";
+import { View, TextInput, Button, StyleSheet, Text } from "react-native";
 import { auth } from "../../config/firebase.config";
 import { sendSignInLinkToEmail } from "firebase/auth";
 import * as SecureStore from "expo-secure-store";
@@ -7,10 +7,18 @@ import * as SecureStore from "expo-secure-store";
 export default function EmailSignIn() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const actionCodeSettings = {
-    url: "https://auth.expo.io/@mikkelpickle/friday-bar-game",
-    handleCodeInApp: true,
-  };
+      const actionCodeSettings = {
+        url: "https://friday-bar-app.firebaseapp.com/finishSignIn.html",
+        iOS: {
+            bundleId: "com.mikkel.fridaybargame", // Your actual iOS bundle ID
+        },
+        android: {
+            packageName: 'com.mikkel.fridaybargame', // Your actual Android package name
+            installApp: false, // Optional: set to true if you want the app to be installed
+            minimumVersion: '1' // Optional: minimum version of your app
+        },
+        handleCodeInApp: true,
+    };
 
   async function sendLink() {
   if (!email || !email.includes("@")) {
@@ -30,19 +38,49 @@ export default function EmailSignIn() {
   }
     }
 
-  return (
-    <View style={{ padding: 20 }}>
-      <Text>Enter your email:</Text>
+    return (
+      <View style={styles.container}>
+      <Text style={styles.label}>Enter your email:</Text>
       <TextInput
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
         placeholder="you@example.com"
-        style={{ borderWidth: 1, borderColor: "#ccc", padding: 10, marginVertical: 10, borderRadius: 8 }}
+        style={styles.input}
         />
         <Button title={loading ? "Sending..." : "Send Sign-In Link"} onPress={sendLink} disabled={loading} />
 
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  
+  label: {
+    fontSize: 16,
+    marginBottom: 5,
+    marginTop: 10,
+    fontWeight: "600"
+  },
+
+  input: {
+    width: "100%",
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 10,
+    marginBottom: 10,
+    fontSize: 16,
+  },
+  infoText: {
+    color: "#fff",
+    fontSize: 16,
+    marginBottom: 12,
+    textAlign: "center",
+  }
+});

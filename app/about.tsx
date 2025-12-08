@@ -13,7 +13,7 @@ export default function About() {
       style={styles.container}
     >
       {/* Fixed Back Button */}
-      <View style={styles.header}>
+      <View style={styles.backButton}>
         <BackButton />
       </View>
 
@@ -48,16 +48,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    position: "absolute",
-    top: SCREEN_HEIGHT * 0.04,
-    left: SCREEN_WIDTH * 0.01,
+  backButton: {
     zIndex: 10,
   },
   scrollContent: {
     paddingTop: SCREEN_HEIGHT * 0.18,
     alignItems: "center",
     paddingBottom: SCREEN_HEIGHT * 0.1,
+    marginTop: 20,
   },
   headline: {
   fontSize: 30,
