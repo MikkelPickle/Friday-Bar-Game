@@ -18,8 +18,8 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 // Relative sizing
 const BUTTON_SIZE = SCREEN_WIDTH * 0.17;
 const BUTTON_SPACING = SCREEN_WIDTH * 0.03;
-const BOTTOM_OFFSET = SCREEN_HEIGHT * 0.03;
-const LEFT_OFFSET = SCREEN_WIDTH * 0.03;
+const BOTTOM_OFFSET = SCREEN_HEIGHT * 0.05;
+const LEFT_OFFSET = SCREEN_WIDTH * 0.01;
 
 const LANGUAGES: { code: SupportedLanguage; emoji: string }[] = [
   { code: "en", emoji: "🇬🇧" },
@@ -58,7 +58,7 @@ const LanguageButton: React.FC = () => {
         toValue: 1,
         useNativeDriver: true,
         speed: 18,
-        bounciness: 20,
+        bounciness: 22,
       })
     );
     Animated.stagger(80, springs).start();
@@ -151,7 +151,7 @@ const LanguageButton: React.FC = () => {
         }}
       >
         <LinearGradient
-          colors={["#DA3485", "#3a0a3aff"]}
+          colors={["#DA3485", "#591059ff"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
           style={[StyleSheet.absoluteFill, { borderRadius: BUTTON_SIZE / 2 }]}
@@ -233,6 +233,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: SCREEN_WIDTH,
     height: SCREEN_WIDTH,
+    left: LEFT_OFFSET,
+    bottom: BOTTOM_OFFSET,
   },
   mainButton: {
     justifyContent: "center",
@@ -269,7 +271,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     overflow: "hidden",
     borderColor: "#DA3485",
-    shadowColor: "rgba(246, 17, 223, 1)",
+    shadowColor: "rgba(246, 17, 223, 0.9)",
     shadowOpacity: 0.75,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 8,

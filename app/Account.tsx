@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, StyleSheet, ScrollView, Dimensions, ActivityIndicator, Image, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TextInput, StyleSheet, ScrollView, Dimensions, ActivityIndicator, TouchableOpacity, Alert } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import * as ImagePicker from "expo-image-picker";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useFonts, Orbitron_400Regular } from "@expo-google-fonts/orbitron";
+import { Directory, Paths, File } from 'expo-file-system';
+import ImageViewer from "../components/ImageViewer";
 
 // Import your components
 import BackButton from "../components/buttons/BackButton";
 import LogOutButton from "../components/buttons/LogOutButton";
-import EmailSignIn from "../components/auth/EmailSignIn";
+import AuthButton from "../components/buttons/AuthButton";
 import HandleEmailLink from "../components/auth/HandleEmailLink";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -22,9 +23,6 @@ export default function Account() {
   const [fieldOfStudy, setFieldOfStudy] = useState<string | null>(null);
   const [score, setScore] = useState<number | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [fontsLoaded] = useFonts({
-      Orbitron_400Regular
-    }); 
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -36,24 +34,51 @@ export default function Account() {
       mediaTypes: 'images',
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1,
     });
 
-    console.log(result);
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
-  };
+    if (result.canceled) return;
+    // Create a persistent profile picture
+    try {
+    const uri = result.assets[0].uri;
+    const file = new File(uri); 
+    const directory = new Directory(Paths.cache, "profile")
+    if (!directory.exists)  {
+      directory.create() //first time setting profile picture
+      console.log("Directory URI after creation:", directory.uri);
+    } 
+    else {
+      directory.delete()
+      directory.create() // changing profile picture
+      console.log("OVERWRITTEN DIRECTORY URI:", directory.uri);
+    }; 
+    console.log("File URI after creation:", file.uri);
+    const ext = file.extension;
+    file.rename("profilePicture" + Date.now().toString() + ext);
+    await AsyncStorage.setItem("fileExtension", file.name);
+    //if file doesn't exist, create it, else update image
+    console.log("File URI after rename:", file.uri);
+    file.move(directory); //target directory
+    console.log("File URI after move: ", file.uri);
+    setImage(file.uri);
+    console.log("Successfully picked image URI:", file.uri); 
+    } catch (error) {
+      console.log("Error while picking image:", error);
+    }};
 
   useEffect(() => {
     const auth = getAuth();
 
     // Load AsyncStorage and auth state
     const init = async () => {
-      const name = await AsyncStorage.getItem("playerName");
-      const study = await AsyncStorage.getItem("playerStudy");
-      const score = await AsyncStorage.getItem("playerScore");
+      const [[, name], [, study], [, score], [, fileExtension]] = await AsyncStorage.multiGet(["playerName", "playerStudy", "playerScore", "fileExtension"]);
+      console.log("fileExtension:", fileExtension);
+      if (fileExtension !== null && fileExtension !== "") { //load profile picture
+        const directory = new Directory(Paths.cache, "profile");
+        const file = new File(directory, fileExtension);
+        console.log("File URI:", file.uri);
+        console.log("File exists:", file.exists)
+        setImage(file.uri);
+      }
       setPlayerName(name);
       setFieldOfStudy(study);
       setScore(score ? parseInt(score) : 0);
@@ -82,21 +107,14 @@ export default function Account() {
   }
 
   return (
-    <LinearGradient colors={["#1b0dbdff", "#1c1027ff"]} style={styles.container}>
+    <LinearGradient colors={["#2315beff", "#1c1027ff"]} style={styles.container}>
       <View style={styles.backButton}>
         <BackButton />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Profile Image */}
-      <View style={styles.imageWrapper}>
-        <TouchableOpacity onPress={pickImage}>
-          <Image 
-            source={image ? { uri: image } : require("../assets/default-profile.jpg")}
-            style={styles.profileImage}
-          />
-        </TouchableOpacity>
-      </View>
+        <ImageViewer img={image} changeImage={pickImage} />
 
       <View style={styles.fieldContainer}>
         <View style={styles.field}>
@@ -104,9 +122,8 @@ export default function Account() {
                 name="person-outline"
                 size={30}
                 color="yellow"
-
               />
-        <View style={{ flex: 1, paddingLeft: 10 }}>
+        <View style={{ flex: 1, paddingLeft: 5 }}>
           <Text style={styles.label}>Player Name</Text>
           <TextInput
             style={styles.input}
@@ -125,7 +142,7 @@ export default function Account() {
                 size={30}
                 color="yellow"
               />
-        <View style={{ flex: 1, paddingLeft: 10 }}>
+        <View style={{ flex: 1, paddingLeft: 5 }}>
           <Text style={styles.label}>Field of Study</Text>
           <Text style={styles.input}>
             {fieldOfStudy}
@@ -139,10 +156,10 @@ export default function Account() {
                 size={30}
                 color="yellow"
               />
-        <View style={{ flex: 1, paddingLeft: 10 }}>
+        <View style={{ flex: 1, paddingLeft: 5 }}>
           <Text style={styles.label}>Score</Text>
-          <Text style={[styles.input, { fontFamily: 'Orbitron_400Regular', fontSize: 25, color: '#fd27f6ff' }]}>
-            {123656}
+          <Text style={[styles.input, { fontFamily: 'Orbitron_400Regular' }]}>
+            {score}
           </Text>
         </View>
         </View>
@@ -151,15 +168,21 @@ export default function Account() {
 
         {user ? (
           <>
-            <View style={{ flex: 1, alignItems: "center", marginTop: 50, width: "80%" }}>
+            <View style={{ flex: 1, alignItems: "center", marginTop: 40, width: "85%" }}>
               <LogOutButton />
+              <View style={{ marginTop: 30, width: "85%" }}>
+              <Text style={styles.statusText}>Successfully signed in!</Text>
+              </View>
             </View>
           </>
         ) : (
           <>
             
-            <View style={{ flex: 1, alignItems: "center", marginTop: 50, width: "80%" }}>
-              <LogOutButton />
+            <View style={{ flex: 1, alignItems: "center", marginTop: 40, width: "85%" }}>
+              <AuthButton />
+              <View style={{width: "85%" }}>
+              <HandleEmailLink />
+              </View>
             </View>
           </>
         )}
@@ -176,27 +199,12 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: SCREEN_HEIGHT * 0.07,
     alignItems: "center",
-    flexGrow: 1, 
-    alignSelf: "stretch",
-  },
-  imageWrapper: {
-    marginTop: 20,
-    marginBottom: 40,
-    position: "relative",
-  },
-
-  profileImage: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    borderWidth: 2,
-    borderColor: '#e62bd3ff',
-    overflow: 'hidden',
+    justifyContent: "center",
   },
 
   fieldContainer: {
     width: "85%",
-    gap: 30,
+    gap: 20,
   },
 
   field: {
@@ -208,11 +216,11 @@ const styles = StyleSheet.create({
     shadowColor: '#d819d2ff',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.6,
-    shadowRadius: 5,
+    shadowRadius: 3,
   },
 
   label: {
-    fontSize: 20,
+    fontSize: 16,
     paddingHorizontal: 12,
     marginTop: 15,
     marginBottom: 5,
@@ -225,8 +233,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 10,
     marginBottom: 15,
-    fontSize: 25,
+    fontSize: 20,
     fontWeight: "400",
     color: "rgba(255, 255, 255, 1)",
+  },
+
+  statusText: {
+    color: "#ffffffff",
+    fontSize: 12,
+    textAlign: "center",
+    fontWeight: "400",
   },
 });

@@ -9,7 +9,7 @@ export default function About() {
 
   return (
     <LinearGradient
-      colors={["#0432b2ff", "#022a5eff"]}
+      colors={["#0432b2ff", "#03224cff"]}
       style={styles.container}
     >
       {/* Fixed Back Button */}
@@ -22,7 +22,7 @@ export default function About() {
         {/* Gradient Headline */}
         {/* Gradient Headline Box */}
       <LinearGradient
-        colors={["#ff9100ff", "#f54020ff"]}
+        colors={["#ffd000ff", "#f54020ff"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.headlineBox}
@@ -33,7 +33,7 @@ export default function About() {
 
         {/* Gradient Box */}
         <LinearGradient
-          colors={["#951cb0", "#541735ff"]}
+          colors={["#951cb0", "#671a40ff"]}
           style={styles.box}
         >
           <Text style={styles.boxText}>
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     paddingBottom: SCREEN_HEIGHT * 0.1,
     marginTop: 20,
   },
-  headline: {
+ headline: {
   fontSize: 30,
   fontWeight: "bold",
   color: "#ffc414ff", // gold color for pop
@@ -78,16 +78,15 @@ headlineBox: {
   shadowOpacity: 0.3,
   shadowRadius: 6,
   elevation: 5,
-  width: SCREEN_WIDTH * 0.91,
+  width: "90%",
 },
   box: {
     minHeight: 650,
-    width: SCREEN_WIDTH * 0.91,
+    width: "90%",
     marginVertical: 10,
     borderRadius: 20,
-    justifyContent: "flex-start",
     alignItems: "center",
-    padding: 20,
+    padding: 18,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.5,
@@ -97,11 +96,8 @@ headlineBox: {
   boxText: {
     textAlign: "left",
     fontSize: 20,
-    fontWeight: "bold",
-    letterSpacing: 2,
-    color: "#E3C134",
-    marginTop: 10,
+    fontWeight: "500",
+    color: "#fcd94cff",
     flexWrap: "wrap",
-    lineHeight: 22,
   },
 });

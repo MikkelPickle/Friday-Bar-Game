@@ -13,7 +13,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Dimensions } from "react-native";
 import JoinGameButton from "../components/buttons/JoinGameButton";
 import { useTranslation } from "react-i18next";
-import { joinExistingLobby } from "./LobbyService";
+import { joinExistingLobby } from "./lobby/LobbyService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");

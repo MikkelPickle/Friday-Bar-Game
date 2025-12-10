@@ -60,7 +60,7 @@ const ZoomButton: React.FC<Props> = ({ onPress }) => {
         onPress={handlePress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        hitSlop={16}
+        hitSlop={20}
         activeOpacity={0.7}
         style={styles.button}
       >

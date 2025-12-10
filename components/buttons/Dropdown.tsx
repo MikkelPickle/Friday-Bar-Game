@@ -52,21 +52,25 @@ const FieldOfStudyDropdown: React.FC<Props> = ({ onSelect }) => {
   return (
     <View style={styles.container}>
       <DropDownPicker
-        open={open}
-        value={value}
-        items={items.map(item => ({
-          label: `${item.emoji}  ${item.label}`,
-          value: item.value,
-        }))}
-        setOpen={setOpen}
-        setValue={setValue}
-        setItems={setItems}
-        onChangeValue={handleValueChange}
-        placeholder="Select a field of study"
-        style={styles.dropdown}
-        dropDownContainerStyle={styles.dropdownContainer}
-        listItemLabelStyle={styles.itemLabel}
-        textStyle={styles.dropdownText}
+      open={open}
+      value={value}
+      items={items.map(item => ({
+        label: `${item.emoji}  ${item.label}`,
+        value: item.value,
+      }))}
+      setOpen={setOpen}
+      setValue={setValue}
+      setItems={setItems}
+      onChangeValue={handleValueChange}
+      placeholder="Select a field of study"
+      style={styles.dropdown}
+      dropDownContainerStyle={styles.dropdownContainer}
+      listItemContainerStyle={styles.itemContainer}
+      selectedItemContainerStyle={styles.selectedItemContainer}
+      listItemLabelStyle={styles.itemLabel}
+      textStyle={styles.dropdownText}
+      itemSeparator={true}
+      itemSeparatorStyle={{backgroundColor: 'rgba(0, 0, 0, 0.1)'}}
       />
     </View>
   );
@@ -81,10 +85,12 @@ const styles = StyleSheet.create({
 
   dropdown: {
     borderRadius: 20,
+    alignContent: 'center',
+    alignItems: 'center',
     borderWidth: 3,
-    width: SCREEN_WIDTH * 0.9,
-    height: SCREEN_HEIGHT * 0.09,
-    borderColor: '#ff88e8',
+    width: "85%",
+    height: 75,
+    borderColor: '#ec2dc5ff',
     backgroundColor: "rgba(255,255,255,0.2)",
     paddingVertical: 8,
     paddingHorizontal: 20,
@@ -94,16 +100,14 @@ const styles = StyleSheet.create({
   dropdownContainer: {
     marginTop: 20,
     borderRadius: 20,
+    //top corners should also be rounded
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     borderWidth: 3,
-    borderColor: '#ff88e8',
+    borderColor: '#ec2dc5ff',
     backgroundColor: '#FFF0F0',
-    width: SCREEN_WIDTH * 0.9,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 10,
-    maxHeight: SCREEN_HEIGHT * 0.4,
+    width: "85%",
+    maxHeight: SCREEN_HEIGHT * 0.35,
   },
 
   dropdownText: {
@@ -113,16 +117,20 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
 
+  itemContainer: {
+    paddingHorizontal: 10,
+    height: 50,
+  },
+
   itemLabel: {
     textAlign: 'left',
-    paddingTop: 10,
     fontSize: 16,
     fontWeight: '600',
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    color: '#000',
-    borderBottomWidth: 2,
-    borderBottomColor: '#eee',
+    color: '#000'
   },
+  selectedItemContainer: {
+    backgroundColor: //light blue
+    'rgba(110, 194, 246, 0.4)',
+  }
 });
 

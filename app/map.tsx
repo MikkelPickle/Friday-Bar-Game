@@ -49,31 +49,18 @@ export default function Map() {
       onPress={() => handleMarkerPress(key)}
     >
       <Ionicons
-        name="beer-sharp"
+        name="beer"
         size={35}
+        style={styles.markerIcon}
         color={facultyGradients[marker.faculty][1]}
       />
-      <Callout tooltip>
-    <View style={{ alignItems: "center" }}>
-    <LinearGradient
-      colors={facultyGradients[marker.faculty]}
-      style={styles.callout}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-    >
-      <Text style={styles.calloutTitle}>{marker.name}</Text>
-    </LinearGradient>
-
-    <View
-      style={[
-        styles.calloutArrow,
-        {
-          borderBottomColor:
-            (facultyGradients[marker.faculty])[1],
-        },
-      ]}
-    />
-  </View>
+    <Callout tooltip>
+      <LinearGradient
+        colors={facultyGradients[marker.faculty]}
+        style={styles.callout}
+      >
+        <Text style={styles.calloutTitle}>{marker.name}</Text>
+      </LinearGradient>
   </Callout>
     </Marker>
   );
@@ -110,43 +97,33 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   backButton: { zIndex: 10 },
   map: { flex: 1 },
-
   callout: {
-  borderRadius: 16,
-  alignSelf: "center",
-  padding: 14,
-  minWidth: 170,
-  alignItems: "center",
-  shadowColor: "#000",
-  shadowOpacity: 0.3,
-  shadowRadius: 10,
-  shadowOffset: { width: 0, height: 4 },
-  elevation: 5,
-},
-
-calloutTitle: {
-  fontWeight: "bold",
-  fontSize: 17,
-  color: "#fff",
-  marginBottom: 6,
-  textAlign: "center",
-},
-
-calloutDescription: {
-  fontSize: 14,
-  color: "#f0f0f0",
-  textAlign: "center",
-},
-
-calloutArrow: {
-  width: 0,
-  height: 0,
-  borderLeftWidth: 10,
-  borderRightWidth: 10,
-  borderBottomWidth: 12,
-  borderLeftColor: "transparent",
-  borderRightColor: "transparent",
-},
+    marginBottom: 5,    
+    borderRadius: 20,
+    opacity: 0.8,
+    padding: 15,
+    minWidth: 150,
+    maxWidth: 400,
+    alignItems: "center",
+    elevation: 5,
+  },
+  calloutTitle: {
+    fontFamily: "Nunito-Bold",
+    fontWeight: "500",
+    fontSize: 20,
+    color: "#fff",
+    marginVertical: 3,
+    textAlign: "center",
+    flexWrap: "wrap",
+  },
+  markerIcon: {
+    opacity: 0.7,
+    shadowColor: "#000000ff",
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 5,
+  },
 });
 
 

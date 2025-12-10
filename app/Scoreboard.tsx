@@ -6,7 +6,7 @@ import ToggleButton from "../components/buttons/ToggleButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFonts, Orbitron_600SemiBold, Orbitron_700Bold } from "@expo-google-fonts/orbitron";
 import Score from "../components/scoreTypes";
-import { loadAllScores, seedUsers } from "./LobbyService";
+import { loadAllScores, seedUsers } from "../app/lobby/LobbyService";
 
 export default function Scoreboard() {
   const [fontsLoaded] = useFonts({
@@ -240,7 +240,6 @@ const styles = StyleSheet.create({
     opacity: 0.9,
     marginBottom: 20,
     textAlign: "center",
-    //make it more to the right
     marginRight: 10,
     },
 
@@ -248,7 +247,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "rgba(255, 255, 255, 0.12)",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 10,
     borderWidth: 3,
     borderColor: "rgba(69, 213, 238, 0.45)",

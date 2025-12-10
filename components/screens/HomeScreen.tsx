@@ -9,7 +9,7 @@ import JoinGameButton from "../buttons/JoinGameButton";
 import NewGameButton from "../buttons/NewGameButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import createNewLobby from "../../app/LobbyService"; // adjust import path
+import createNewLobby from "../../app/lobby/LobbyService"; // adjust import path
 const router = useRouter();
 
 const handleCreate = async () => {
@@ -31,19 +31,19 @@ export default function HomeScreen() {
   
   useEffect(() => {
     const checkName = async () => {
-      const study = await AsyncStorage.getItem("playerStudy");
-      const name = await AsyncStorage.getItem("playerName");
+      const [[, name], [, study], [, score], [, fileExtension]] = await AsyncStorage.multiGet(["playerName", "playerStudy", "playerScore", "fileExtension"]);
       if (!name || !study) {
         router.replace("/WelcomeScreen");
       }
-      console.log("Name:", name, "Field of Study:", study);
+      console.log("Name:", name, "Field of Study:", study, "Score:", score, "File Extension:", fileExtension);
+      
     };
     checkName();
   }, []);
 
   return (
     <LinearGradient
-      colors={["#4e2489ff", "#1b1a1aff"]}
+      colors={["#521c9fff", "#292828ff"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={styles.container}
@@ -57,8 +57,8 @@ export default function HomeScreen() {
 
       <Menu open={open} />
 
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <View style={{ marginBottom: 50 }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: 20 }}>
+        <View style={{ marginBottom: 50, zIndex: 10 }}>
           <NewGameButton
             onPress={() => {
               console.log("New Game pressed!");
@@ -67,7 +67,7 @@ export default function HomeScreen() {
           />
         </View>
 
-        <View>
+        <View style={{ zIndex: 10 }}>
           <JoinGameButton
             onPress={() => {
               console.log("Join Game pressed!");
@@ -75,18 +75,16 @@ export default function HomeScreen() {
             }}
           />
         </View>
-      </View>
 
-      <View style={styles.languageButton}>
         <LanguageButton />
       </View>
+
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", alignItems: "center" },
-  languageButton: { position: "absolute", bottom: 20, left: 20 },
   overlay: {
     position: "absolute",
     top: 0,
@@ -95,11 +93,5 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "rgba(0,0,0,0.5)",
     zIndex: 10,
-  },
-  button: {
-    padding: 12,
-    backgroundColor: "#4e2489",
-    borderRadius: 8,
-  },
-  buttonText: { color: "#fff", fontWeight: "bold" },
+  }
 });

@@ -78,11 +78,11 @@ headlineBox: {
   shadowOpacity: 0.3,
   shadowRadius: 6,
   elevation: 5,
-  width: SCREEN_WIDTH * 0.91,
+  width: SCREEN_WIDTH * 0.9,
 },
   box: {
     minHeight: 650,
-    width: SCREEN_WIDTH * 0.91,
+    width: SCREEN_WIDTH * 0.9,
     marginVertical: 10,
     borderRadius: 20,
     justifyContent: "flex-start",

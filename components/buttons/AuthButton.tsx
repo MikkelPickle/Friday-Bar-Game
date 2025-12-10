@@ -1,6 +1,4 @@
-//create save button component
-
-import React from "react";
+import React, { useState } from "react";
 import { Text, View, StyleSheet, Pressable, Dimensions } from "react-native";
 import Animated, {
   useSharedValue,
@@ -8,23 +6,31 @@ import Animated, {
   withTiming,
   interpolate,
 } from "react-native-reanimated";
+import EmailSignIn from "../auth/EmailSignIn";
+import { router } from "expo-router";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-const DURATION = 180; // slightly snappier for your large button
+const DURATION = 180;
 const SHADOW_HEIGHT = 12;
 
-const SaveStudyButton = ({ saveName }) => {
+const AuthButton = () => {
   const transition = useSharedValue(0);
   const isActive = useSharedValue(false);
+  const [showPrompt, setShowPrompt] = useState(false);
 
   const animatedStyle = useAnimatedStyle(() => ({
     top: interpolate(transition.value, [0, 1], [0, SHADOW_HEIGHT]),
   }));
 
+
+  const handleAuth = () => {
+    setShowPrompt(true); // show glassmorphic popup
+  };
+
   return (
-    <Pressable
-      onPress={saveName}
+    <><Pressable
+      onPress={handleAuth}
       hitSlop={16}
       onPressIn={() => {
         isActive.value = true;
@@ -33,46 +39,48 @@ const SaveStudyButton = ({ saveName }) => {
             transition.value = withTiming(0, { duration: DURATION });
           }
         });
-      }}
+      } }
       onPressOut={() => {
         transition.value = withTiming(0, { duration: DURATION });
         isActive.value = false;
-      }}
+      } }
     >
-      <View style={{ marginTop: 5 }}>
+      <View>
         {/* Shadow layer */}
         <View style={styles.shadow} />
 
         {/* Button layer */}
         <Animated.View style={[styles.button, animatedStyle]}>
-          <Text style={styles.text}>Save</Text>
+          <Text style={styles.text}>Sign In</Text>
         </Animated.View>
       </View>
-    </Pressable>
+    </Pressable><EmailSignIn
+        visible={showPrompt}
+        onClose={() => setShowPrompt(false)} /></>
   );
 };
 
 const styles = StyleSheet.create({
   shadow: {
-    backgroundColor: "#9b0c58ff", // darker pink for shadow depth
-    height: 70,
-    width: SCREEN_WIDTH * 0.85,
+    backgroundColor: "#9b0c58ff",
+    height: 60,
+    width: SCREEN_WIDTH * 0.7,
     borderRadius: 35,
     position: "absolute",
     top: SHADOW_HEIGHT,
   },
   button: {
     backgroundColor: "#FF1493",
-    height: 70,
-    width: SCREEN_WIDTH * 0.85,
+    height: 60,
+    width: SCREEN_WIDTH * 0.7,
     borderRadius: 35,
     justifyContent: "center",
     alignItems: "center",
   },
   text: {
     color: "#E3C134",
-    fontSize: 26,
-    fontWeight: "900",
+    fontSize: 22,
+    fontWeight: "700",
     letterSpacing: 2,
     textTransform: "uppercase",
     textShadowColor: "rgba(0,0,0,0.35)",
@@ -80,4 +88,5 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
 });
-export default SaveStudyButton;
+
+export default AuthButton;

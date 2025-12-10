@@ -6,8 +6,7 @@ import { useRouter } from "expo-router";
 
 import FieldOfStudyDropdown from "../components/buttons/Dropdown";
 import SaveStudyButton from "../components/buttons/SaveStudyButton";
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+import LanguageButton from "../components/buttons/LanguageButton";
 
 export default function WelcomeScreen() {
   const [name, setName] = useState("");
@@ -24,6 +23,7 @@ export default function WelcomeScreen() {
     await AsyncStorage.setItem("playerName", name.trim());
     await AsyncStorage.setItem("playerStudy", study);
     await AsyncStorage.setItem("playerScore", "0");
+    await AsyncStorage.setItem("fileExtension", "");
 
     router.replace("/");
   };
@@ -33,22 +33,32 @@ export default function WelcomeScreen() {
       colors={["#71006dff", "#1317efff"]}
       style={styles.container}
     >
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: 20 }}>
       <Text style={styles.title}>✨ Welcome! ✨</Text>
 
+      <View style={{ zIndex: 100, width: "100%", alignContent: "center" }}>
       <TextInput
         style={styles.input}
-        placeholder="Enter your name"
+        placeholder="Enter your name..."
         placeholderTextColor="#ccc"
         value={name}
+        //on press closes the keyboard
         onChangeText={setName}
+        autoCorrect={false}
+        spellCheck={false}
+        autoCapitalize="words"
       />
-
-      {/* Dropdown (renders above button because higher zIndex) */}
-      <View style={{ zIndex: 10 }}> 
-        <FieldOfStudyDropdown onSelect={setStudy} />
       </View>
 
+      {/* Dropdown (renders above button because higher zIndex) */}
+      <View style={{ zIndex: 100, width: "100%", alignItems: "center" }}> 
+        <FieldOfStudyDropdown onSelect={setStudy} />
+      </View>
+      <View style={{ zIndex: 10 }}>
       <SaveStudyButton saveName={saveData} />
+      </View>
+        <LanguageButton />
+        </View>
     </LinearGradient>
   );
 }
@@ -57,26 +67,31 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    paddingTop: SCREEN_HEIGHT * 0.25,
+    justifyContent: "center",
   },
   title: {
     fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 50,
-    color: "#FFD700", //yellow color for pop 
+    fontWeight: "600",
+    marginBottom: 35,
+    color: "#FFD700", //yellow color for pop
+    textShadowColor: '#ec2dc5ff',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+    letterSpacing: 2, 
 
   },
   input: {
-    width: SCREEN_WIDTH * 0.9,
-    height: SCREEN_HEIGHT * 0.09,
+    minWidth: "85%",
+    maxWidth: "85%",
     textAlign: "center",
+    height: 75,
     backgroundColor: "rgba(255,255,255,0.2)",
     borderRadius: 20,
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: '400',
     borderWidth: 3,
     color: "#fff",
     marginBottom: 25,
-    borderColor: "#ff88e8",
-  },
+    borderColor: "#ec2dc5ff",
+  }
 });

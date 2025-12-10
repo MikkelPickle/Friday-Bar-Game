@@ -1,7 +1,7 @@
 import { httpsCallable } from "firebase/functions";
-import { functions, db } from "../config/firebase.config";
+import { functions, db } from "../../config/firebase.config";
 import { doc, onSnapshot } from "firebase/firestore";
-import ScoreData from "../components/scoreTypes";
+import ScoreData from "../../components/scoreTypes";
 
 export default async function createNewLobby(playerName: string) {
   console.log("Trying to create new lobby");

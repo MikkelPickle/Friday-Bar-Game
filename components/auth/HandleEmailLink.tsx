@@ -4,11 +4,11 @@ import { auth } from "../../config/firebase.config";
 import { isSignInWithEmailLink, signInWithEmailLink } from "firebase/auth";
 import * as SecureStore from "expo-secure-store";
 import * as Linking from "expo-linking";
-import { addNewUser, checkIfUserExists, loadScore } from "../../app/LobbyService";
+import { addNewUser, checkIfUserExists, loadScore } from "../../app/lobby/LobbyService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function HandleEmailLink() {
-  const [status, setStatus] = useState("Checking sign-in link...");
+  const [status, setStatus] = useState("Authenticate with email to make your account persistent.");
 
   useEffect(() => {
     const handleUrl = async (url: string) => {
@@ -39,7 +39,6 @@ export default function HandleEmailLink() {
           // Add new user
           const name = await AsyncStorage.getItem("playerName");
           const study = await AsyncStorage.getItem("playerStudy");
-          await AsyncStorage.setItem("playerScore", "0");
           const added = await addNewUser(name, study);
           if (!added) {
             console.error("Failed to add user:", name);
@@ -66,7 +65,6 @@ export default function HandleEmailLink() {
 
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color="#fff" style={{ marginBottom: 20 }} />
       <Text style={styles.statusText}>{status}</Text>
     </View>
   );
@@ -74,14 +72,14 @@ export default function HandleEmailLink() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 20,
-    padding: 16,
+    marginTop: 30,
     alignItems: "center",
     justifyContent: "center",
   },
   statusText: {
-    color: "#fff",
-    fontSize: 16,
+    color: "#ffffffff",
+    fontSize: 12,
     textAlign: "center",
+    fontWeight: "400",
   },
 });
