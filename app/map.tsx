@@ -6,7 +6,7 @@ import ZoomButton from "../components/buttons/ZoomButton";
 import BackButton from "../components/buttons/BackButton";
 import darkMapStyle from "../components/data/darkMapStyle.json";
 import rawMarkers from "../components/data/markers.json";
-import { Markers, MarkerData, FacultyGradients } from "../components/markerTypes";
+import { Markers, MarkerData, FacultyGradients } from "../types/markerTypes";
 import { LinearGradient } from "expo-linear-gradient";
 
 const markers: Markers = rawMarkers as Markers;

@@ -1,6 +1,5 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
-import { logger } from "firebase-functions/logger";
 import { initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getAuth } from "firebase-admin/auth";
@@ -9,222 +8,310 @@ import { getAuth } from "firebase-admin/auth";
 initializeApp();
 const db = getFirestore();
 
+
+
+
+
 // ------ LOBBY ------
 
 
-// Helper to generate random 6-digit PIN
+
+
+// --- Player object inside a lobby ---
+interface LobbyPlayer {
+  name: string;
+  uid: string;
+  isLeader: boolean;
+}
+
+// --- The structure of a lobby in Firestore ---
+interface Lobby {
+  gamePin: number;
+  createdAt: number;
+  expiresAt: number;
+  players: LobbyPlayer[];
+}
+
+// --- Response from createLobby ---
+interface CreateLobbyResponse {
+  gamePin: number;
+  uid: string;
+}
+
+// --- Response from joinLobby ---
+interface JoinLobbyResponse {
+  gamePin: number;
+  players: LobbyPlayer[];
+  uid: string;
+}
+
 function generatePin(): number {
   return Math.floor(100000 + Math.random() * 900000);
 }
 
-// Helper to check if a PIN already exists in active lobbies
 async function pinExists(pin: number): Promise<boolean> {
-  const snapshot = await db
+  const snap = await db
     .collection("lobbies")
     .where("pin", "==", pin)
     .limit(1)
     .get();
-  return !snapshot.empty;
+
+  return !snap.empty;
 }
 
-// ✅ Create lobby
-export const createLobby = onCall(async (request) => {
-  const { creatorName } = request.data;
-  logger.info("createLobby called", { requestData: request.data });
+function isExpired(expiresAt: number): boolean {
+  return expiresAt < Date.now();
+}
 
+function makeUniquePlayerName(
+  players: LobbyPlayer[],
+  desiredName: string
+): string {
+  if (!players.some((p) => p.name === desiredName)) {
+    return desiredName; // Name is unique
+  }
+
+  // Find a unique suffix
+  let counter = 1;
+  let uniqueName = `${desiredName}(${counter})`;
+  while (players.some((p) => p.name === uniqueName)) {
+    counter++;
+    uniqueName = `${desiredName}(${counter})`;
+  }
+
+  return uniqueName;
+}
+
+function generatePlayerUid(): string {
+  return Math.random().toString(36).slice(2);
+}
+
+
+// ---------------------------------------------------------
+// Create Lobby
+// ---------------------------------------------------------
+export const createLobby = onCall(async (req): Promise<CreateLobbyResponse> => {
+  const { creatorName } = req.data;
   if (!creatorName || typeof creatorName !== "string") {
-    throw new HttpsError("invalid-argument", "Creator name is required");
-}
+    throw new HttpsError("invalid-argument", "creatorName is required");
+  }
 
-  // Generate unique PIN
   let gamePin: number;
-  do {
-    gamePin = generatePin();
-  } while (await pinExists(gamePin));
+  do gamePin = generatePin();
+  while (await pinExists(gamePin));
 
-  // Auto-expire in 1 hour
-  const expiresAt = Date.now() + 60 * 60 * 1000;
-
+  const createdAt = new Date();
+  const expiresAt = new Date(createdAt.getTime() + 2 * 60 * 60 * 1000);
   const lobbyRef = db.collection("lobbies").doc();
-  await lobbyRef.set({
-    pin: gamePin,
-    createdAt: Date.now(),
-    expiresAt,
-    players: [{ name: creatorName }],
-  });
+  const playerUid: string = generatePlayerUid();
+  console.log(createdAt);
+  console.log(expiresAt);
 
-  logger.info("Lobby created", { lobbyId: lobbyRef.id, gamePin });
-  return { lobbyId: lobbyRef.id.toString(), gamePin: Number(gamePin) };
+const lobby: Lobby = {
+    gamePin: gamePin,
+    createdAt: createdAt.getTime(),
+    expiresAt: expiresAt.getTime(), // 2 hours
+    players: [{ name: creatorName, uid: playerUid, isLeader: true }],
+};
+
+  await lobbyRef.set(lobby);
+
+  // Return the creator's UID so frontend can store it
+  return { gamePin, uid: playerUid };
 });
 
-// ✅ Join lobby
-export const joinLobby = onCall(async (req) => {
+
+
+// ---------------------------------------------------------
+// Join Lobby
+// ---------------------------------------------------------
+export const joinLobby = onCall(async (req): Promise<JoinLobbyResponse> => {
   const { pin, playerName } = req.data;
 
-  if (!pin || !playerName) {
-    throw new HttpsError("invalid-argument","Missing pin or playerName");
+  if (!pin || typeof playerName !== "string") {
+    throw new HttpsError("invalid-argument", "Missing pin or playerName");
   }
 
-  const snapshot = await db
-    .collection("lobbies")
-    .where("pin", "==", pin)
-    .limit(1)
-    .get();
+  const lobbyQuery = db.collection("lobbies").where("pin", "==", pin).limit(1);
+  const snap = await lobbyQuery.get();
+  if (snap.empty) throw new HttpsError("not-found", "Lobby not found");
+  const lobbyDoc = snap.docs[0];
 
-  if (snapshot.empty) {
-    throw new HttpsError("not-found", "Lobby not found");
-  }
+  const result: JoinLobbyResponse = await db.runTransaction(async (transaction) => {
+    const doc = await transaction.get(lobbyDoc.ref);
+    const lobby = doc.data() as Lobby;
 
-  const lobbyDoc = snapshot.docs[0];
-  const lobbyData = lobbyDoc.data();
+    if (isExpired(lobby.expiresAt)) {
+      transaction.delete(doc.ref);
+      throw new HttpsError("permission-denied", "Lobby has expired");
+    }
 
-  // Check expiration
-  if (lobbyData.expiresAt < Date.now()) {
-    await lobbyDoc.ref.delete();
-    //https error 
-    throw new HttpsError("permission-denied", "Lobby has expired");
-  }
+    if (lobby.players.length >= 8) {
+      throw new HttpsError("resource-exhausted", "Lobby is full");
+    }
 
-  if (lobbyData.players.length >= 8) {
-    throw new HttpsError("resource-exhausted", "Lobby is full");
-  }
+    const uniqueName = makeUniquePlayerName(lobby.players, playerName);
+    const playerUid = generatePlayerUid();
 
-  const updatedPlayers = [...lobbyData.players, { name: playerName }];
-  await lobbyDoc.ref.update({ players: updatedPlayers });
+    const updatedPlayers: LobbyPlayer[] = [
+      ...lobby.players,
+      { name: uniqueName, uid: playerUid, isLeader: false },
+    ];
 
-  return {
-    lobbyId: lobbyDoc.id,
-    pin: lobbyData.pin,
-    players: updatedPlayers,
-  };
+    transaction.update(doc.ref, { players: updatedPlayers });
+
+    return { gamePin: lobby.gamePin, players: updatedPlayers, uid: playerUid };
+  });
+
+  return result;
 });
 
-// ✅ Cleanup expired lobbies (runs every 30 minutes)
-export const cleanupLobbies = onSchedule("every 30 minutes", async () => {
-  const now = Date.now();
-  const snapshot = await db
-    .collection("lobbies")
-    .where("expiresAt", "<", now)
-    .get();
 
-  if (snapshot.empty) {
-    logger.info("No expired lobbies found");
-    return;
+
+// ---------------------------------------------------------
+// Leave Lobby
+// ---------------------------------------------------------
+export const leaveLobby = onCall(
+  async (req): Promise<{ success: true; message?: string }> => {
+    const { lobbyId, playerUid } = req.data;
+
+    if (typeof lobbyId !== "string" || typeof playerUid !== "string") {
+      throw new HttpsError("invalid-argument", "Missing lobbyId or playerUid");
+    }
+
+    const ref = db.collection("lobbies").doc(lobbyId);
+
+    const result: { success: true; message?: string } = await db.runTransaction(async (transaction) => {
+      const doc = await transaction.get(ref);
+      if (!doc.exists) throw new HttpsError("not-found", "Lobby not found");
+
+      const lobby = doc.data() as Lobby;
+      const leavingPlayer = lobby.players.find((p) => p.uid === playerUid);
+
+      if (!leavingPlayer)
+        throw new HttpsError("not-found", "Player not in lobby");
+
+      if (leavingPlayer.isLeader) {
+        // Leader left → delete lobby
+        transaction.delete(ref);
+        return { success: true, message: "Leader left, lobby closed" };
+      }
+
+      const updatedPlayers = lobby.players.filter((p) => p.uid !== playerUid);
+      transaction.update(ref, { players: updatedPlayers });
+
+      return { success: true, message: "Player left" };
+    });
+
+    return result;
   }
+);
 
-  const batch = db.batch();
-  snapshot.forEach((doc) => batch.delete(doc.ref));
-  await batch.commit();
 
-  logger.info(`Deleted ${snapshot.size} expired lobbies`);
-});
 
-// ✅ Leave lobby
-export const leaveLobby = onCall(async (req) => {
-  const { lobbyId, playerName } = req.data;
+// ---------------------------------------------------------
+// Cleanup Expired Lobbies
+// ---------------------------------------------------------
+export const cleanupLobbies = onSchedule(
+  {
+    schedule: "every 30 minutes",
+    timeZone: "Etc/UTC",
+  },
+  async () => {
+    const now = Date.now();
+    const snap = await db.collection("lobbies")
+      .where("expiresAt", "<", now)
+      .get();
 
-  if (!lobbyId || !playerName) {
-    throw new HttpsError("invalid-argument", "Missing lobbyId or playerName");
+    if (!snap.empty) {
+      const batch = db.batch();
+      snap.forEach((doc) => batch.delete(doc.ref));
+      await batch.commit();
+    }
   }
-
-  const lobbyRef = db.collection("lobbies").doc(lobbyId);
-  const lobbyDoc = await lobbyRef.get();
-
-  if (!lobbyDoc.exists) {
-    throw new HttpsError("not-found", "Lobby not found");
-  }
-
-  const lobbyData = lobbyDoc.data();
-  if (!lobbyData || !Array.isArray(lobbyData.players)) {
-    throw new HttpsError("internal", "Invalid lobby data");
-  }
-
-  const updatedPlayers = lobbyData.players.filter(
-    (p: { name: string }) => p.name !== playerName
-  );
-
-  await lobbyRef.update({ players: updatedPlayers });
-
-  logger.info(`Player ${playerName} left lobby ${lobbyId}`);
-  return { success: true };
-});
+);
 
 
 // -------- USER --------
 
 
-type Score = {
-  name: string;
-  score: number;
-  study: string;
-};
 
-// Helper: get trusted email for a uid via Admin SDK
-async function getAuthEmailForUid(uid: string): Promise<string | null> {
+
+
+
+function assert(condition: any, code: HttpsError["code"], message: string): asserts condition {
+  if (!condition) {
+    throw new HttpsError(code, message);
+  }
+}
+
+
+
+/** Get and validate trusted email */
+async function getVerifiedEmail(uid: string): Promise<string> {
   try {
     const user = await getAuth().getUser(uid);
-    return user.email ?? null;
-  } catch (err) {
-    // If the user isn't found, bubble up a controlled error to the caller
+    const email = user.email;
+    assert(email, "failed-precondition", "Auth user has no email");
+    return email!;
+  } catch {
     throw new HttpsError("not-found", "Auth user not found");
   }
 }
 
-/**
- * checkIfUserExists
- * Request: { uid: string }
- * Response: { exists: boolean }
- */
+
+
+/** Validate user exists and email matches */
+async function verifyUserDoc(uid: string, expectedEmail: string) {
+  const ref = db.collection("users").doc(uid);
+  const snap = await ref.get();
+
+  assert(snap.exists, "not-found", "User not found");
+
+  const data = snap.data()!;
+  assert(data.email === expectedEmail, "permission-denied", "Email mismatch");
+
+  return { ref, data };
+}
+
+
+
+// ───────────────────────────────────────────
+// checkIfUserExists
+// ───────────────────────────────────────────
 export const checkIfUserExists = onCall(async (req) => {
   const uid = req.data.uid;
-  if (!uid || typeof uid !== "string") {
-    throw new HttpsError("invalid-argument", "Missing or invalid uid");
-  }
+  assert(typeof uid === "string", "invalid-argument", "Invalid uid");
 
-  const userRef = db.collection("users").doc(uid);
-  const userDoc = await userRef.get();
-  return { exists: userDoc.exists };
+  const doc = await db.collection("users").doc(uid).get();
+  return { exists: doc.exists };
 });
 
-/**
- * addNewUser
- * Request: { uid: string, name: string, email?: string, study?: string }
- * - If email provided it will be verified against Auth email (trusted).
- * - If email omitted we use the Auth email.
- * - Uses merge:true so it won't wipe existing fields.
- */
+
+
+// ───────────────────────────────────────────
+// addNewUser
+// ───────────────────────────────────────────
 export const addNewUser = onCall(async (req) => {
   const { uid, name, email: providedEmail, study } = req.data;
 
-  if (!uid || typeof uid !== "string") {
-    throw new HttpsError("invalid-argument", "Missing or invalid uid");
-  }
-  if (!name || typeof name !== "string") {
-    throw new HttpsError("invalid-argument", "Missing or invalid name");
-  }
+  assert(typeof uid === "string", "invalid-argument", "Invalid uid");
+  assert(typeof name === "string", "invalid-argument", "Invalid name");
 
-  // Get trusted email from Auth
-  const authEmail = await getAuthEmailForUid(uid);
+  const authEmail = await getVerifiedEmail(uid);
 
-  if (!authEmail) {
-    throw new HttpsError("failed-precondition", "Auth user has no email");
-  }
-
-  // If the client provided an email, ensure it matches the auth email (prevent spoofing)
+  // Prevent spoofing
   if (providedEmail && providedEmail !== authEmail) {
     throw new HttpsError("permission-denied", "Provided email does not match authentication email");
   }
 
-  const userRef = db.collection("users").doc(uid);
-
-  // Use merge true to avoid accidentally wiping fields
-  await userRef.set(
+  await db.collection("users").doc(uid).set(
     {
       uid,
       email: authEmail,
       username: name,
+      study: study ?? null,
       score: 0,
-      study,
       createdAt: Date.now(),
     },
     { merge: true }
@@ -233,208 +320,100 @@ export const addNewUser = onCall(async (req) => {
   return { success: true };
 });
 
-/**
- * updateScore
- * Request: { uid: string, score: number }
- * - Validates with Auth email
- * - Updates only if the new score is higher
- * - Uses transaction to avoid race conditions
- */
+
+
+// ───────────────────────────────────────────
+// updateScore
+// ───────────────────────────────────────────
 export const updateScore = onCall(async (req) => {
   const { uid, score } = req.data;
 
-  if (!uid || typeof uid !== "string") {
-    throw new HttpsError("invalid-argument", "Missing or invalid uid");
-  }
-  if (typeof score !== "number" || !isFinite(score) || score < 0) {
-    throw new HttpsError("invalid-argument", "Missing or invalid score");
-  }
+  assert(typeof uid === "string", "invalid-argument", "Invalid uid");
+  assert(typeof score === "number" && score >= 0, "invalid-argument", "Invalid score");
 
-  // Get trusted email (throws if not found)
-  const authEmail = await getAuthEmailForUid(uid);
+  const authEmail = await getVerifiedEmail(uid);
 
   const userRef = db.collection("users").doc(uid);
 
-  try {
-    await db.runTransaction(async (transaction) => {
-      const doc = await transaction.get(userRef);
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(userRef);
+    assert(snap.exists, "not-found", "User not found");
 
-      if (!doc.exists) {
-        throw new HttpsError("not-found", "User document not found");
-      }
-      const docData = doc.data() as any;
-      const storedEmail = docData.email;
+    const data = snap.data()!;
+    assert(data.email === authEmail, "permission-denied", "Email mismatch");
 
-      if (!storedEmail || storedEmail !== authEmail) {
-        throw new HttpsError("permission-denied", "Email mismatch");
-      }
+    if (score > (data.score ?? 0)) {
+      tx.set(userRef, { score }, { merge: true });
+    }
+  });
 
-      const currentScore = typeof docData.score === "number" ? docData.score : 0;
-
-      // Only update when the incoming score is strictly higher
-      if (score > currentScore) {
-        transaction.set(userRef, { score }, { merge: true });
-      }
-    });
-
-    return { success: true, score };
-  } catch (err) {
-    if (err instanceof HttpsError) throw err;
-    console.error("updateScore error:", err);
-    throw new HttpsError("internal", "Failed to update score");
-  }
+  return { success: true, score };
 });
 
-/**
- * loadScore
- * Request: { uid: string }
- * Response: { score: number }
- * - Validates with Auth email
- */
+
+
+// ───────────────────────────────────────────
+// loadScore
+// ───────────────────────────────────────────
 export const loadScore = onCall(async (req) => {
   const uid = req.data.uid;
-  if (!uid || typeof uid !== "string") {
-    throw new HttpsError("invalid-argument", "Missing or invalid uid");
-  }
+  assert(typeof uid === "string", "invalid-argument", "Invalid uid");
 
-  const authEmail = await getAuthEmailForUid(uid);
-  const userRef = db.collection("users").doc(uid);
-  const doc = await userRef.get();
+  const authEmail = await getVerifiedEmail(uid);
+  const { data } = await verifyUserDoc(uid, authEmail);
 
-  if (!doc.exists) {
-    throw new HttpsError("not-found", "User not found");
-  }
-
-  const docData = doc.data() as any;
-  if (!docData.email || docData.email !== authEmail) {
-    throw new HttpsError("permission-denied", "Email mismatch");
-  }
-
-  const score = typeof docData.score === "number" ? docData.score : 0;
-  return { score };
+  return { score: data.score ?? 0 };
 });
 
-/**
- * loadAllScores
- * Request optional: { limit?: number, study?: string }
- * Response: { success: boolean, scores: Score[] }
- *
- * - Returns top scores ordered by score desc.
- * - Use a small limit by default to keep payload small.
- */
+
+
+// ───────────────────────────────────────────
+// loadAllScores
+// ───────────────────────────────────────────
 export const loadAllScores = onCall(async (req) => {
   const limit = 20;
-  logger.info("Loading all scores", { study: req.data.study });
+  const study = typeof req.data?.study === "string" ? req.data.study.trim() : null;
 
-  // Normalize study filter
-  const studyFilter =
-    typeof req.data?.study === "string" && req.data.study.trim().length > 0
-      ? req.data.study.trim()
-      : null;
+  const baseQuery = db.collection("users").orderBy("score", "desc").limit(limit);
 
-  logger.info("Study filter", { studyFilter });
+  const allSnap = await baseQuery.get();
+  const allScores = allSnap.docs.map((d) => {
+    const x = d.data();
+    return { name: x.username, score: x.score, study: x.study };
+  });
 
-  const allScores: Score[] = [];
-  const studyScores: Score[] = [];
+  let studyScores: any[] = [];
+  if (study) {
+    const studySnap = await db
+      .collection("users")
+      .where("study", "==", study)
+      .orderBy("score", "desc")
+      .limit(limit)
+      .get();
 
-  try {
-    // --- Top 20 overall ---
-    let allSnapshot;
-    try {
-      allSnapshot = await db
-        .collection("users")
-        .orderBy("score", "desc")
-        .limit(limit)
-        .get();
-      logger.info("Fetched overall top scores", { count: allSnapshot.size });
-    } catch (err) {
-      logger.error("Error fetching overall scores", err);
-      throw new HttpsError("internal", "Failed to fetch overall scores");
-    }
-
-    allSnapshot.forEach((doc) => {
-      const data = doc.data() as any;
-      if (
-        typeof data.username === "string" &&
-        typeof data.score === "number" &&
-        typeof data.study === "string"
-      ) {
-        allScores.push({
-          name: data.username,
-          score: data.score,
-          study: data.study,
-        });
-      } else {
-        logger.warn("Invalid user document skipped", { id: doc.id, data });
-      }
+    studyScores = studySnap.docs.map((d) => {
+      const x = d.data();
+      return { name: x.username, score: x.score, study: x.study };
     });
-
-    // --- Top 20 filtered by study ---
-    if (studyFilter) {
-      let studySnapshot;
-      try {
-        studySnapshot = await db
-          .collection("users")
-          .where("study", "==", studyFilter)
-          .orderBy("score", "desc")
-          .limit(limit)
-          .get();
-        logger.info("Fetched study-filtered scores", { studyFilter, count: studySnapshot.size });
-      } catch (err) {
-        logger.error("Error fetching study-filtered scores", { studyFilter, error: err });
-        throw new HttpsError(
-          "internal",
-          `Failed to fetch scores for study ${studyFilter}`
-        );
-      }
-
-      studySnapshot.forEach((doc) => {
-        const data = doc.data() as any;
-        if (
-          typeof data.username === "string" &&
-          typeof data.score === "number" &&
-          typeof data.study === "string"
-        ) {
-          studyScores.push({
-            name: data.username,
-            score: data.score,
-            study: data.study,
-          });
-        } else {
-          logger.warn("Invalid user document skipped in study filter", { id: doc.id, data });
-        }
-      });
-    }
-
-    return { success: true, allScores, studyScores };
-  } catch (err) {
-    // This catch now only handles unexpected errors outside the two queries
-    logger.error("Unexpected loadAllScores error", err);
-    throw new HttpsError(
-      "internal",
-      "Unexpected error while loading scores"
-    );
   }
+
+  return { success: true, allScores, studyScores };
 });
 
 
-// Testing
 
-
-// Only seed when called manually (emulator)
+// ───────────────────────────────────────────
+// seedUsers 
+// ───────────────────────────────────────────
 export const seedUsers = onCall(async () => {
-  if (process.env.FUNCTIONS_EMULATOR !== "true") {
-    throw new HttpsError("failed-precondition", "Seeding only allowed in emulator");
-  }
 
-  const dummyUsers = [
+const dummyUsers = [
     { uid: "dummy1", email: "dummy1@example.com", username: "Alice", score: 90, study: "cs" },
     { uid: "dummy2", email: "dummy2@example.com", username: "Bob", score: 85, study: "math" },
     { uid: "dummy3", email: "dummy3@example.com", username: "Charlie", score: 92, study: "science" },
     { uid: "dummy4", email: "dummy4@example.com", username: "Peggy", score: 100, study: "science" },
     { uid: "dummy5", email: "dummy5@example.com", username: "Daphne", score: 75, study: "math" },
-    //add more dummy users !!
-  ];
+];
 
   for (const user of dummyUsers) {
     await db.collection("users").doc(user.uid).set({
@@ -445,4 +424,3 @@ export const seedUsers = onCall(async () => {
 
   return { success: true, message: "Seeding complete!" };
 });
-

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { subscribeToLobby } from "./LobbyService";
+import { subscribeToLobby } from "../../services/LobbyService";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 export default function LobbyScreen() {
@@ -46,7 +46,7 @@ export default function LobbyScreen() {
       } else {
         console.warn("Lobby no longer exists:", lobbyId);
         // Optionally navigate back or show error screen
-        router.replace("/index"); 
+        router.back(); 
       }
     });
 

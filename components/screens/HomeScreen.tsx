@@ -9,7 +9,7 @@ import JoinGameButton from "../buttons/JoinGameButton";
 import NewGameButton from "../buttons/NewGameButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import createNewLobby from "../../app/lobby/LobbyService"; // adjust import path
+import createNewLobby from "../../services/LobbyService"; // adjust import path
 const router = useRouter();
 
 const handleCreate = async () => {

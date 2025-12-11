@@ -7,9 +7,8 @@ import Animated, {
   interpolate,
 } from "react-native-reanimated";
 import EmailSignIn from "../auth/EmailSignIn";
-import { router } from "expo-router";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const DURATION = 180;
 const SHADOW_HEIGHT = 12;
@@ -62,8 +61,8 @@ const AuthButton = () => {
 
 const styles = StyleSheet.create({
   shadow: {
-    backgroundColor: "#9b0c58ff",
-    height: 60,
+    backgroundColor: "rgba(155, 12, 88, 1)",
+    height: SCREEN_HEIGHT * 0.08,
     width: SCREEN_WIDTH * 0.7,
     borderRadius: 35,
     position: "absolute",
@@ -71,7 +70,7 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: "#FF1493",
-    height: 60,
+    height: SCREEN_HEIGHT * 0.08,
     width: SCREEN_WIDTH * 0.7,
     borderRadius: 35,
     justifyContent: "center",

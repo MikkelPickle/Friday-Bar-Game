@@ -4,7 +4,7 @@ import { auth } from "../../config/firebase.config";
 import { isSignInWithEmailLink, signInWithEmailLink } from "firebase/auth";
 import * as SecureStore from "expo-secure-store";
 import * as Linking from "expo-linking";
-import { addNewUser, checkIfUserExists, loadScore } from "../../app/lobby/LobbyService";
+import { addNewUser, checkIfUserExists, loadScore } from "../../services/UserService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function HandleEmailLink() {

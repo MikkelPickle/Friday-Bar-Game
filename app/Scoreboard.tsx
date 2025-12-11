@@ -5,8 +5,8 @@ import BackButton from "../components/buttons/BackButton";
 import ToggleButton from "../components/buttons/ToggleButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFonts, Orbitron_600SemiBold, Orbitron_700Bold } from "@expo-google-fonts/orbitron";
-import Score from "../components/scoreTypes";
-import { loadAllScores, seedUsers } from "../app/lobby/LobbyService";
+import Score from "../types/scoreTypes";
+import { loadAllScores, seedUsers } from "../services/UserService";
 
 export default function Scoreboard() {
   const [fontsLoaded] = useFonts({

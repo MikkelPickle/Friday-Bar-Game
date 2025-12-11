@@ -204,7 +204,8 @@ const styles = StyleSheet.create({
 
   fieldContainer: {
     width: "85%",
-    gap: 20,
+    gap: SCREEN_HEIGHT * 0.03, // increases spacing on larger screens
+    paddingVertical: SCREEN_HEIGHT * 0.005,
   },
 
   field: {
@@ -212,6 +213,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(201, 15, 230, 0.3)',
     paddingHorizontal: 20,
+
+    // ⬇️ MAKE THE FIELDS TALLER ON LARGER SCREENS
+    paddingVertical: SCREEN_HEIGHT * 0.01,
+    minHeight: SCREEN_HEIGHT * 0.06,  
+
     borderRadius: 25,
     shadowColor: '#d819d2ff',
     shadowOffset: { width: 0, height: 1 },
