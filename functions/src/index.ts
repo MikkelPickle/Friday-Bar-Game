@@ -3,6 +3,7 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getAuth } from "firebase-admin/auth";
+import { v4 as uuidv4 } from "uuid";
 // Note to myself: USE EXPLICIT IMPORTS!!!
 
 initializeApp();
@@ -26,6 +27,7 @@ interface LobbyPlayer {
 
 // --- The structure of a lobby in Firestore ---
 interface Lobby {
+  lobbyId: string;
   gamePin: number;
   createdAt: number;
   expiresAt: number;
@@ -34,12 +36,14 @@ interface Lobby {
 
 // --- Response from createLobby ---
 interface CreateLobbyResponse {
+  lobbyId: string;
   gamePin: number;
   uid: string;
 }
 
 // --- Response from joinLobby ---
 interface JoinLobbyResponse {
+  lobbyId: string;
   gamePin: number;
   players: LobbyPlayer[];
   uid: string;
@@ -83,9 +87,30 @@ function makeUniquePlayerName(
 }
 
 function generatePlayerUid(): string {
-  return Math.random().toString(36).slice(2);
+  return uuidv4();
 }
 
+function addFakePlayers(
+  lobby: Lobby,
+  count: number
+): Lobby {
+  let updatedPlayers = [...lobby.players];
+
+  for (let i = 0; i < count; i++) {
+    if (updatedPlayers.length >= 8) break; // max capacity
+
+    const fakeBaseName = `Player${i + 1}`;
+    const uniqueName = makeUniquePlayerName(updatedPlayers, fakeBaseName);
+
+    updatedPlayers.push({
+      name: uniqueName,
+      uid: generatePlayerUid(),
+      isLeader: false,
+    });
+  }
+
+  return { ...lobby, players: updatedPlayers };
+}
 
 // ---------------------------------------------------------
 // Create Lobby
@@ -107,17 +132,21 @@ export const createLobby = onCall(async (req): Promise<CreateLobbyResponse> => {
   console.log(createdAt);
   console.log(expiresAt);
 
-const lobby: Lobby = {
+  var lobby: Lobby = {
+    lobbyId: lobbyRef.id,
     gamePin: gamePin,
     createdAt: createdAt.getTime(),
     expiresAt: expiresAt.getTime(), // 2 hours
     players: [{ name: creatorName, uid: playerUid, isLeader: true }],
-};
+  };
+
+
+  lobby = addFakePlayers(lobby, 7);
 
   await lobbyRef.set(lobby);
 
   // Return the creator's UID so frontend can store it
-  return { gamePin, uid: playerUid };
+  return { lobbyId: lobbyRef.id, gamePin: gamePin, uid: playerUid };
 });
 
 
@@ -158,9 +187,11 @@ export const joinLobby = onCall(async (req): Promise<JoinLobbyResponse> => {
       { name: uniqueName, uid: playerUid, isLeader: false },
     ];
 
+    assert(updatedPlayers.findLastIndex((p) => !p.isLeader), "permission-denied", "Can't be leader");
+
     transaction.update(doc.ref, { players: updatedPlayers });
 
-    return { gamePin: lobby.gamePin, players: updatedPlayers, uid: playerUid };
+    return {lobbyId: lobby.lobbyId, gamePin: lobby.gamePin, players: updatedPlayers, uid: playerUid };
   });
 
   return result;
@@ -402,6 +433,13 @@ export const loadAllScores = onCall(async (req) => {
 
 
 
+
+// ----- TESTING -----
+
+
+
+
+
 // ───────────────────────────────────────────
 // seedUsers 
 // ───────────────────────────────────────────
@@ -423,4 +461,43 @@ const dummyUsers = [
   }
 
   return { success: true, message: "Seeding complete!" };
+});
+
+
+
+
+// --- Add players to an existing lobby ---
+export const addPlayersToLobby = onCall(async (req): Promise<Lobby> => {
+  const { lobbyId, playerNames } = req.data;
+
+  if (!lobbyId || !Array.isArray(playerNames) || playerNames.length === 0) {
+    throw new HttpsError("invalid-argument", "Invalid lobbyId or playerNames");
+  }
+
+  const lobbyRef = db.collection("lobbies").doc(lobbyId);
+
+  const updatedLobby = await db.runTransaction(async (transaction) => {
+    const doc = await transaction.get(lobbyRef);
+
+    if (!doc.exists) {
+      throw new HttpsError("not-found", "Lobby not found");
+    }
+
+    const lobby = doc.data() as Lobby;
+
+    // Add new players
+    const newPlayers = playerNames.map((name) => ({
+      name,
+      uid: generatePlayerUid(),
+      isLeader: false,
+    }));
+
+    const allPlayers = [...lobby.players, ...newPlayers];
+
+    transaction.update(lobbyRef, { players: allPlayers });
+
+    return { ...lobby, players: allPlayers };
+  });
+
+  return updatedLobby;
 });

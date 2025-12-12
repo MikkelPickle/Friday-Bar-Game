@@ -15,10 +15,10 @@ const router = useRouter();
 const handleCreate = async () => {
   try {
     const playerName = await AsyncStorage.getItem("playerName");
-    const { lobbyId, gamePin } = await createNewLobby(playerName); // pass name
+    const { lobbyId, gamePin, uid } = await createNewLobby(playerName); // pass name
     router.push({
       pathname: `/lobby/${lobbyId}`,
-      params: { gamePin, playerName },
+      params: { lobbyId, gamePin, playerName },
     });
   } catch (err: any) {
     alert(err.message);

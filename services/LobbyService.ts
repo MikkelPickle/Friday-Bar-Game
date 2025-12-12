@@ -11,10 +11,10 @@ export default async function createNewLobby(playerName: string): Promise<Create
     const createLobby = httpsCallable(functions, "createLobby");
     const result = await createLobby({ creatorName: playerName });
 
-    const { gamePin: returnedPin, uid: returnedUid } = result.data as CreateLobbyResponse;
+    const { lobbyId: returnedLobbyId ,gamePin: returnedPin, uid: returnedUid } = result.data as CreateLobbyResponse;
     console.log("Lobby created!", "with PIN:", returnedPin);
 
-    return { gamePin: returnedPin, uid: returnedUid };
+    return { lobbyId: returnedLobbyId, gamePin: returnedPin, uid: returnedUid };
   } catch (error) {
     console.error("Error creating lobby:", error);
     throw error;
@@ -29,10 +29,10 @@ export async function joinExistingLobby(pin: number, playerName: string): Promis
     const joinLobby = httpsCallable(functions, "joinLobby");
     const result = await joinLobby({ pin, playerName });
 
-    const { gamePin: returnedPin, players: returnedPlayers, uid: returnedUid } = result.data as JoinLobbyResponse;
+    const { lobbyId: returnedLobbyId, gamePin: returnedPin, players: returnedPlayers, uid: returnedUid } = result.data as JoinLobbyResponse;
     console.log("Joined lobby!", "Players:", returnedPlayers);
 
-    return { gamePin: returnedPin, players: returnedPlayers, uid: returnedUid };
+    return { lobbyId: returnedLobbyId, gamePin: returnedPin, players: returnedPlayers, uid: returnedUid };
   } catch (error: any) {
     console.error("Error joining lobby:", error);
 
@@ -58,6 +58,7 @@ export function subscribeToLobby(
     if (docSnap.exists()) {
       const data = docSnap.data() as DocumentData;
       callback({
+        lobbyId: data.lobbyId,
         gamePin: data.pin,
         createdAt: data.createdAt,
         expiresAt: data.expiresAt,
@@ -87,3 +88,5 @@ export async function leaveLobby(lobbyId: string, playerName: string) {
     throw error;
   }
 }
+
+

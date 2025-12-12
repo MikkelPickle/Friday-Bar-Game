@@ -7,6 +7,7 @@ export interface LobbyPlayer {
 
 // --- The structure of a lobby in Firestore ---
 export interface Lobby {
+  lobbyId: string;
   gamePin: number;
   createdAt: number;
   expiresAt: number;
@@ -15,12 +16,14 @@ export interface Lobby {
 
 // --- Response from createLobby ---
 export interface CreateLobbyResponse {
+  lobbyId: string;
   gamePin: number;
   uid: string;
 }
 
 // --- Response from joinLobby ---
 export interface JoinLobbyResponse {
+  lobbyId: string;
   gamePin: number;
   players: LobbyPlayer[];
   uid: string;
