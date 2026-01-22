@@ -9,21 +9,6 @@ import JoinGameButton from "../buttons/JoinGameButton";
 import NewGameButton from "../buttons/NewGameButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import createNewLobby from "../../services/LobbyService"; // adjust import path
-const router = useRouter();
-
-const handleCreate = async () => {
-  try {
-    const playerName = await AsyncStorage.getItem("playerName");
-    const { lobbyId, gamePin, uid } = await createNewLobby(playerName); // pass name
-    router.push({
-      pathname: `/lobby/${lobbyId}`,
-      params: { lobbyId, gamePin, playerName },
-    });
-  } catch (err: any) {
-    alert(err.message);
-  }
-};
 
 export default function HomeScreen() {
   const [open, setOpen] = useState(false);
@@ -62,7 +47,7 @@ export default function HomeScreen() {
           <NewGameButton
             onPress={() => {
               console.log("New Game pressed!");
-              handleCreate();
+              router.push("/IntensityPickerScreen");
             }}
           />
         </View>

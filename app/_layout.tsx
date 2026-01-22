@@ -76,14 +76,21 @@ export default function Layout() {
           name="JoinLobbyScreen"
           options={{
             presentation: "card",
-            animation: "slide_from_bottom", // 👈 slides up
+            animation: "slide_from_bottom",
+        }}
+      />
+      <Stack.Screen
+        name="IntensityPickerScreen"
+        options={{
+          presentation: "card",
+          animation: "slide_from_bottom",
         }}
       />
       <Stack.Screen
         name="lobby/[lobbyId]"
         options={{
           presentation: "card",
-          animation: "slide_from_bottom", // 👈 slides up
+          animation: "slide_from_bottom",
         }}
       />
       </Stack>

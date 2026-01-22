@@ -6,9 +6,24 @@
     "map": "Kort",
     "scoreboard": "Scoreboard",
     "account": "Konto",
-    "contact": "Kontakt" 
+    "contact": "Kontakt"
   },
   "aboutAppText":  "Denne app er et sjovt socialt drikkespil, designet til at samle venner til grin, udfordringer og gode minder!\n\nVigtigt: Dette spil opfordrer ikke til uforsvarligt alkoholforbrug eller alkohol under den lovlige alder. Respekter altid den lovlige alkoholalder og drik ansvarligt.\n\nForetrækker du ikke at drikke alkohol? Intet problem, byt til alkoholfri drikkevarer og nyd spillet lige så meget.\n\nSpil ansvarligt, hav det sjovt, og gør hvert øjeblik mindeværdigt! 🎉",
   "contactText": "For spørgsmål eller feedback, kontakt os venligst på fridaybar@gmail.com ",
-  "enterPin": "Indtast spil-PIN"
+  "enterPin": "Indtast spil-PIN",
+  "game": {
+    "intensity": "Intensitet:",
+    "mild": "Mild",
+    "medium": "Medium",
+    "spicy": "Pikant",
+    "startGame": "START SPIL",
+    "next": "NÆSTE",
+    "finishGame": "AFSLUT SPIL",
+    "challenge": "Udfordring",
+    "loading": "Indlæser spil...",
+    "finished": "SPIL FÆRDIGT!",
+    "thanksForPlaying": "Tak fordi I spillede med!",
+    "waitingForLeader": "Venter på at lederen går videre...",
+    "waitingToStart": "Venter på at lederen starter spillet..."
+  }
 }

@@ -1,8 +1,27 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Challenges: Read-only (seeded by admin/cloud functions)
+    match /challenges/{challengeId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Lobbies: Read open, writes via Cloud Functions only
     match /lobbies/{lobbyId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if false;
+
+      match /gameState/{doc} {
+        allow read: if true;
+        allow write: if false;
+      }
+    }
+
+    // Users
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if false;
     }
   }
 }

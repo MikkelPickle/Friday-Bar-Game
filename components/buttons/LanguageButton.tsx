@@ -4,22 +4,13 @@ import {
   TouchableOpacity,
   Text,
   StyleSheet,
-  Dimensions,
   Animated,
   Easing,
+  useWindowDimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { i18nInstance, SupportedLanguage } from "../../languages/i18n";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-// Screen dimensions
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-
-// Relative sizing
-const BUTTON_SIZE = SCREEN_WIDTH * 0.17;
-const BUTTON_SPACING = SCREEN_WIDTH * 0.03;
-const BOTTOM_OFFSET = SCREEN_HEIGHT * 0.05;
-const LEFT_OFFSET = SCREEN_WIDTH * 0.01;
 
 const LANGUAGES: { code: SupportedLanguage; emoji: string }[] = [
   { code: "en", emoji: "🇬🇧" },
@@ -27,6 +18,13 @@ const LANGUAGES: { code: SupportedLanguage; emoji: string }[] = [
 ];
 
 const LanguageButton: React.FC = () => {
+  const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
+
+  // Relative sizing
+  const BUTTON_SIZE = SCREEN_WIDTH * 0.17;
+  const BUTTON_SPACING = SCREEN_WIDTH * 0.03;
+  const BOTTOM_OFFSET = SCREEN_HEIGHT * 0.05;
+  const LEFT_OFFSET = SCREEN_WIDTH * 0.01;
   const [expanded, setExpanded] = useState(false);
   const [currentLang, setCurrentLang] = useState<SupportedLanguage>("en");
 
@@ -58,7 +56,7 @@ const LanguageButton: React.FC = () => {
         toValue: 1,
         useNativeDriver: true,
         speed: 18,
-        bounciness: 22,
+        bounciness: 20,
       })
     );
     Animated.stagger(80, springs).start();
@@ -123,7 +121,7 @@ const LanguageButton: React.FC = () => {
     LANGUAGES.find((l) => l.code === currentLang)?.emoji || "🌐";
 
   return (
-    <View style={[styles.container, { bottom: BOTTOM_OFFSET, left: LEFT_OFFSET }]}>
+    <View style={[styles.container, { bottom: BOTTOM_OFFSET, left: LEFT_OFFSET, width: SCREEN_WIDTH, height: SCREEN_WIDTH }]}>
       {/* Main button */}
       <TouchableOpacity
         style={[
@@ -162,7 +160,7 @@ const LanguageButton: React.FC = () => {
       </TouchableOpacity>
 
       {/* Flags (animated) */}
-      <View style={styles.flagsContainer} pointerEvents="box-none">
+      <View style={[styles.flagsContainer, { height: BUTTON_SIZE }]} pointerEvents="box-none">
         {LANGUAGES.map((lang, i) => {
           const offset = BUTTON_SIZE + i * BUTTON_SPACING + i * BUTTON_SIZE;
 
@@ -231,10 +229,6 @@ const LanguageButton: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    width: SCREEN_WIDTH,
-    height: SCREEN_WIDTH,
-    left: LEFT_OFFSET,
-    bottom: BOTTOM_OFFSET,
   },
   mainButton: {
     justifyContent: "center",
@@ -257,7 +251,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     left: 0,
-    height: BUTTON_SIZE,
     justifyContent: "center",
   },
   flagAnimatedContainer: {
@@ -265,7 +258,7 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   flagButton: {
-    backgroundColor: "rgba(125, 125, 125, 0.2)", 
+    backgroundColor: "rgba(125, 125, 125, 0.2)",
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,

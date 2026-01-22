@@ -3,6 +3,7 @@ export interface LobbyPlayer {
   name: string;
   uid: string;
   isLeader: boolean;
+  avatarUrl?: string;
 }
 
 // --- The structure of a lobby in Firestore ---
@@ -12,6 +13,7 @@ export interface Lobby {
   createdAt: number;
   expiresAt: number;
   players: LobbyPlayer[];
+  gameStatus?: "waiting" | "playing" | "finished";
 }
 
 // --- Response from createLobby ---
